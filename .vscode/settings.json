@@ -1,0 +1,8 @@
+{
+  // ← for the editor & language server
+  "java.home":              "C:\\Program Files\\Java\\jdk-21.0.7",
+  "java.jdt.ls.java.home":  "C:\\Program Files\\Java\\jdk-21.0.7",
+
+  // ← **this** forces the debugger to launch on Java 21
+  "java.debug.settings.javaHome": "C:\\Program Files\\Java\\jdk-21.0.7"
+}
