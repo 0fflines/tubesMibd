@@ -1,0 +1,49 @@
+public static void printAktivasiPerangkatAdmin() {
+    while (true) {
+        printAsciiBox(logo);
+        displaySarusun(0);
+        System.out.println("Ketik '.' jika ingin kembali ke homepage");
+        System.out.print("Pilihan (masukkan ID Sarusun): ");
+        String idInput = sc.next();
+        System.out.println();
+
+        if (idInput.equals(".")) {
+            printHomePageAdmin();
+            return;
+        }
+
+        System.out.println("Silahkan pilih perangkat di sarusun yang sudah dipilih:");
+        System.out.println("No.Serial           Status");
+        System.out.println("--------------------------------");
+
+        try {
+            String sql = "SELECT noSerial, statusAir FROM Perangkat WHERE IdS = '" + idInput + "'";
+            ResultSet resultSet = statement.executeQuery(sql);
+
+            while (resultSet.next()) {
+                String noSerial = resultSet.getString("noSerial");
+                int statusAir = resultSet.getInt("statusAir");
+                String status = (statusAir == 1) ? "Menyala" : "Mati";
+
+                System.out.printf("%-18s %s%n", noSerial, status);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Terjadi error saat mengambil data perangkat: " + e.getMessage());
+        }
+
+        System.out.println();
+        System.out.println("Ketik '.' untuk memilih sarusun yang lain");
+        System.out.print("Pilihan (masukkan noSerial): ");
+        String noSerialInput = sc.next();
+        if (noSerialInput.equals(".")) {
+            continue;
+        } else {
+            System.out.println("Perangkat IoT " + noSerialInput + " telah dipilih (status tidak diubah).");
+            System.out.println("Ketik apapun untuk kembali");
+            sc.next();
+            break;
+        }
+    }
+    printHomePageAdmin();
+}
