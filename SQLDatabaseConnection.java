@@ -307,6 +307,14 @@ class UiMibd {
                 System.out.print("Nomor telepon: ");
                 String noTelpInput = sc.next();
                 System.out.println();
+                try{
+                    String sql = "INSERT INTO [User] (NIK, nama, alamatDomisili, noTelp, OTP) VALUES ('" 
+                    + nikInput + "', '"+ namaInput + "', '"+ alamatInput + "', '"
+                    + noTelpInput + "', '"+ 123456 + "')";
+                    ResultSet resultSet = statement.executeQuery(sql);   
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
                 System.out.println("User telah didaftar");
             } else if (input.equals("2")) {
                 displayTower();
@@ -314,7 +322,7 @@ class UiMibd {
                 System.out.println("Masukkan data sarusun");
                 System.out.print("Id Tower: ");
                 String towerInput = sc.next();
-                if (towerInput.equals("."))
+                if(towerInput.equals("."))
                     continue;
                 System.out.print("Lantai: ");
                 String lantaiInput = sc.next();
@@ -322,6 +330,14 @@ class UiMibd {
                 System.out.print("NIK Pemilik: ");
                 String pemilikInput = sc.next();
                 System.out.println();
+                try {
+                    String sql = "INSERT INTO Sarusun (Lantai, penggunaanAirH, penggunaanAirB, penggunaanAirT, nikPemilik, IdT) VALUES ('" 
+                    + lantaiInput + "', '"+ 0 + "', '"+ 0  + 0 + "', '"+ pemilikInput 
+                    + "', '"+ towerInput + "')";
+                    ResultSet resultSet = statement.executeQuery(sql);  
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }  
                 System.out.println("Sarusun telah didaftar");
             } else if (input.equals("3")) {
                 displayTower();
@@ -332,9 +348,16 @@ class UiMibd {
                 if (towerInput.equals("."))
                     continue;
                 displayUser();
-                System.out.print("NIK Pengelola: ");
+                System.out.print("Nama Pengelola: ");
                 String pengelolaInput = sc.next();
                 System.out.println();
+                try {
+                    String sql = "INSERT INTO Tower (IdT, nama) VALUES ('" 
+                    + towerInput + "', '"+ pengelolaInput + "')";
+                    ResultSet resultSet = statement.executeQuery(sql);  
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 System.out.println("Tower telah didaftar");
             } else if (input.equals("4")) {
                 displayTower();
@@ -349,6 +372,13 @@ class UiMibd {
                 System.out.print("Id Sarusun lokasi perangkat: ");
                 String sarusunInput = sc.next();
                 System.out.println();
+                try {
+                    String sql = "INSERT INTO Perangkat (noSerial, IdS) VALUES ('" + towerInput 
+                    + "', '"+ sarusunInput+"')";
+                    ResultSet resultSet = statement.executeQuery(sql);  
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 System.out.println("Perangkat telah didaftar");
             }
             System.out.println("Ketik apapun untuk kembali kepada homepage");
