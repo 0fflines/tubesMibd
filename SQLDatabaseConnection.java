@@ -163,12 +163,15 @@ class UiMibd {
         if (idInput.equals(".") == false) {
             ResultSet resultSet = null;
             try {
-                String sql = "SELECT PenggunaanAirH, PenggunaanAirB, PenggunaanAirT FROM Sarusun WHERE IdS ="+idInput;
+                String sql = "SELECT PenggunaanAirH, PenggunaanAirB, PenggunaanAirT FROM Sarusun WHERE IdS =" + idInput;
                 resultSet = statement.executeQuery(sql);
-                while(resultSet.next()){
-                    System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 hari terakhir%n", resultSet.getInt(1));
-                    System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 minggu terakhir%n", resultSet.getInt(2));
-                    System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 tahun terakhir%n", resultSet.getInt(3));
+                while (resultSet.next()) {
+                    System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 hari terakhir%n",
+                            resultSet.getInt(1));
+                    System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 minggu terakhir%n",
+                            resultSet.getInt(2));
+                    System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 tahun terakhir%n",
+                            resultSet.getInt(3));
                     System.out.println("Ketik apapun untuk kembali");
                     sc.next();
                     printHomePageAdmin();
@@ -176,7 +179,8 @@ class UiMibd {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }else printHomePageAdmin();
+        } else
+            printHomePageAdmin();
     }
 
     public void printLogDownload() {
@@ -214,12 +218,15 @@ class UiMibd {
         if (idInput.equals(".") == false) {
             ResultSet resultSet = null;
             try {
-                String sql = "SELECT PenggunaanAirH, PenggunaanAirB, PenggunaanAirT FROM Sarusun WHERE IdS ="+idInput;
+                String sql = "SELECT PenggunaanAirH, PenggunaanAirB, PenggunaanAirT FROM Sarusun WHERE IdS =" + idInput;
                 resultSet = statement.executeQuery(sql);
-                while(resultSet.next()){
-                    System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 hari terakhir%n", resultSet.getInt(1));
-                    System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 minggu terakhir%n", resultSet.getInt(2));
-                    System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 tahun terakhir%n", resultSet.getInt(3));
+                while (resultSet.next()) {
+                    System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 hari terakhir%n",
+                            resultSet.getInt(1));
+                    System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 minggu terakhir%n",
+                            resultSet.getInt(2));
+                    System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 tahun terakhir%n",
+                            resultSet.getInt(3));
                     System.out.println("Ketik apapun untuk kembali");
                     sc.next();
                     printHomePageUser();
@@ -227,7 +234,8 @@ class UiMibd {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }else printHomePageUser();
+        } else
+            printHomePageUser();
     }
 
     public void printAktivasiPerangkatAdmin() {
@@ -242,14 +250,14 @@ class UiMibd {
                 return;
             }
             System.out.println();
-    
+
             try {
                 String sql = "SELECT noSerial, statusAir FROM Perangkat WHERE IdS = '" + idInput + "'";
                 ResultSet resultSet = statement.executeQuery(sql);
-    
+
                 System.out.println("Silahkan pilih perangkat di sarusun yang sudah dipilih:");
                 System.out.println("No.Serial           Status");
-    
+
                 boolean found = false;
                 while (resultSet.next()) {
                     String noSerial = resultSet.getString("noSerial");
@@ -258,18 +266,18 @@ class UiMibd {
                     System.out.printf("%-20s%s\n", noSerial, statusStr);
                     found = true;
                 }
-    
+
                 if (!found) {
                     System.out.println("(Belum ada perangkat yang terdaftar di Sarusun ini)");
                     System.out.println("Ketik apapun untuk kembali");
                     sc.next();
                     continue;
                 }
-    
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
-    
+
             System.out.println();
             System.out.println("Ketik '.' untuk memilih sarusun yang lain");
             System.out.print("Pilihan (masukkan noSerial): ");
@@ -277,17 +285,19 @@ class UiMibd {
             if (noSerialInput.equals(".")) {
                 continue;
             }
-            
+
             try {
                 String sql = "SELECT statusAir FROM Perangkat WHERE noSerial = '" + noSerialInput + "'";
                 ResultSet resultSet = statement.executeQuery(sql);
                 if (resultSet.next()) {
                     boolean status = resultSet.getBoolean("statusAir");
-                    if(status == true){
-                        String sqlUpdate = "UPDATE Perangkat SET statusAir = 0 WHERE noSerial = '" + noSerialInput + "'";
+                    if (status == true) {
+                        String sqlUpdate = "UPDATE Perangkat SET statusAir = 0 WHERE noSerial = '" + noSerialInput
+                                + "'";
                         statement.executeUpdate(sqlUpdate);
-                    }else{
-                        String sqlUpdate = "UPDATE Perangkat SET statusAir = 1 WHERE noSerial = '" + noSerialInput + "'";
+                    } else {
+                        String sqlUpdate = "UPDATE Perangkat SET statusAir = 1 WHERE noSerial = '" + noSerialInput
+                                + "'";
                         statement.executeUpdate(sqlUpdate);
                     }
                     String statusStr = !status ? "menyala" : "mati";
@@ -298,12 +308,12 @@ class UiMibd {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-    
+
             System.out.println("Ketik apapun untuk kembali");
             sc.next();
             break;
         }
-    
+
         printHomePageAdmin();
     }
 
@@ -319,14 +329,14 @@ class UiMibd {
                 return;
             }
             System.out.println();
-    
+
             try {
                 String sql = "SELECT noSerial, statusAir FROM Perangkat WHERE IdS = '" + idInput + "'";
                 ResultSet resultSet = statement.executeQuery(sql);
-    
+
                 System.out.println("Silahkan pilih perangkat di sarusun yang sudah dipilih:");
                 System.out.println("No.Serial           Status");
-    
+
                 boolean found = false;
                 while (resultSet.next()) {
                     String noSerial = resultSet.getString("noSerial");
@@ -335,18 +345,18 @@ class UiMibd {
                     System.out.printf("%-20s%s\n", noSerial, statusStr);
                     found = true;
                 }
-    
+
                 if (!found) {
                     System.out.println("(Belum ada perangkat yang terdaftar di Sarusun ini)");
                     System.out.println("Ketik apapun untuk kembali");
                     sc.next();
                     continue;
                 }
-    
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
-    
+
             System.out.println();
             System.out.println("Ketik '.' untuk memilih sarusun yang lain");
             System.out.print("Pilihan (masukkan noSerial): ");
@@ -354,17 +364,19 @@ class UiMibd {
             if (noSerialInput.equals(".")) {
                 continue;
             }
-            
+
             try {
                 String sql = "SELECT statusAir FROM Perangkat WHERE noSerial = '" + noSerialInput + "'";
                 ResultSet resultSet = statement.executeQuery(sql);
                 if (resultSet.next()) {
                     boolean status = resultSet.getBoolean("statusAir");
-                    if(status == true){
-                        String sqlUpdate = "UPDATE Perangkat SET statusAir = 0 WHERE noSerial = '" + noSerialInput + "'";
+                    if (status == true) {
+                        String sqlUpdate = "UPDATE Perangkat SET statusAir = 0 WHERE noSerial = '" + noSerialInput
+                                + "'";
                         statement.executeUpdate(sqlUpdate);
-                    }else{
-                        String sqlUpdate = "UPDATE Perangkat SET statusAir = 1 WHERE noSerial = '" + noSerialInput + "'";
+                    } else {
+                        String sqlUpdate = "UPDATE Perangkat SET statusAir = 1 WHERE noSerial = '" + noSerialInput
+                                + "'";
                         statement.executeUpdate(sqlUpdate);
                     }
                     String statusStr = !status ? "menyala" : "mati";
@@ -375,7 +387,7 @@ class UiMibd {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-    
+
             System.out.println("Ketik apapun untuk kembali");
             sc.next();
             break;
@@ -394,8 +406,8 @@ class UiMibd {
         if (noSerialInput.equals(".") == false) {
             System.out.print("Id Sarusun lokasi perangkat: ");
             String IdS = sc.next();
-            String input = "'"+noSerialInput+"', "+0+", "+IdS;
-            String sql = "INSERT INTO Perangkat VALUES ("+input+")";
+            String input = "'" + noSerialInput + "', " + 0 + ", " + IdS;
+            String sql = "INSERT INTO Perangkat VALUES (" + input + ")";
             try {
                 statement.executeUpdate(sql);
                 System.out.println();
@@ -521,7 +533,7 @@ class UiMibd {
             String sql = "SELECT IdS, nama, Sarusun.Lantai FROM Sarusun JOIN Tower ON Sarusun.IdT = Tower.IdT"
                     + " LEFT JOIN (SELECT IdT FROM Pengelola WHERE nikPengelola = '" + NIK
                     + "') AS Kelola ON Kelola.IdT = Sarusun.IdT"
-                    + " WHERE nikPemilik = '"+ NIK +"' OR Sarusun.IdT = Kelola.IdT";
+                    + " WHERE nikPemilik = '" + NIK + "' OR Sarusun.IdT = Kelola.IdT";
             resultSet = statement.executeQuery(sql);
         } catch (Exception e) {
             e.printStackTrace();
@@ -559,23 +571,36 @@ class UiMibd {
 
     public void displayUser() {
         System.out.println();
-        System.out.println("User yang terdaftar:");
-        System.out.println("NIK         Nama\n");
-        System.out.println("1921        Mei");
-        System.out.println("2018        Barb");
-        System.out.println("3189        Bob");
-        System.out.println("4198        Mick");
+        String sql = "SELECT NIK, nama FROM [User]";
+        try {
+            ResultSet resultSet = statement.executeQuery(sql);
+            System.out.println("NIK                  Nama");
+            while (resultSet.next()) {
+                System.out.printf("%-20s %s%n", resultSet.getString(1), resultSet.getString(2));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         System.out.println();
     }
 
     public void displayTower() {
         System.out.println();
         System.out.println("Tower yang terdaftar:");
-        System.out.println("IdT         Nama\n");
-        System.out.println("1           PPAG U");
-        System.out.println("2           PPAG S");
-        System.out.println("3           Gedung 10");
-        System.out.println("4           Gedung 9");
+        String sql = "SELECT * FROM TOWER";
+        try {
+            ResultSet resultSet = statement.executeQuery(sql);
+            System.out.println("ID       Nama\n");
+            while (resultSet.next()) {
+
+                int idTower = resultSet.getInt("idT");
+                String nama = resultSet.getString("nama");
+
+                System.out.printf("%-8s %s%n", idTower, nama);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         System.out.println();
     }
 
