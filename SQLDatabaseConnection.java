@@ -13,7 +13,7 @@ public class SQLDatabaseConnection {
     // Replace server name, username, and password with your credentials
     public static void main(String[] args) {
         String connectionUrl = "jdbc:sqlserver://localhost:1433;"
-                + "databaseName=kuliah;"
+                + "databaseName=tubesMIBD;"
                 + "integratedSecurity=true;"
                 + "trustServerCertificate=true;";
 
@@ -61,12 +61,14 @@ class UiMibd {
         System.out.print("NIK: ");
         String nikInput = sc.next();
         System.out.println();
-        query = "SELECT * FROM [User] WHERE NIK = '" + nikInput + "'";
+        query = "SELECT OTP FROM [User] WHERE NIK = '" + nikInput + "'";
         ResultSet resultSet = null;
         String otpValid = null;
         try{
             resultSet = statement.executeQuery(query);
-            otpValid = resultSet.getString("NIK");
+            resultSet.toString();
+            resultSet.next();
+            otpValid = resultSet.getString("OTP");
         }catch(Exception e){
             e.printStackTrace();
         }
