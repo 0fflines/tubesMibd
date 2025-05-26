@@ -47,9 +47,12 @@ class UiMibd {
     private static String query = null;
     private Connection connection;
     private Statement statement;
+    private String NIK;
+
     public UiMibd(Connection conn, Statement stat) {
         connection = conn;
         statement = stat;
+        NIK = "";
         printLoginPage();
     }
 
@@ -64,12 +67,12 @@ class UiMibd {
         query = "SELECT OTP FROM [User] WHERE NIK = '" + nikInput + "'";
         ResultSet resultSet = null;
         String otpValid = null;
-        try{
+        try {
             resultSet = statement.executeQuery(query);
             resultSet.toString();
             resultSet.next();
             otpValid = resultSet.getString("OTP");
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         System.out.println(
@@ -79,9 +82,12 @@ class UiMibd {
         System.out.println();
 
         if (otpInput.equals(otpValid)) {
-            if(checkAdmin(nikInput)) printHomePageAdmin();
-            else printHomePageUser();
-        } else{
+            NIK = nikInput;
+            if (checkAdmin())
+                printHomePageAdmin();
+            else
+                printHomePageUser();
+        } else {
             System.out.println("OTP yang dimasukkan salah, tolong masukkan data lagi");
             System.out.println("ketik apapun untuk kembali");
             sc.next();
@@ -90,17 +96,18 @@ class UiMibd {
         }
     }
 
-    public boolean checkAdmin(String NIK){
-        query = "SELECT IdR FROM RoleUser WHERE NIK='"+NIK+"'";
-        try{
+    public boolean checkAdmin() {
+        query = "SELECT IdR FROM RoleUser WHERE NIK='" + NIK + "'";
+        try {
             ResultSet resultSet = statement.executeQuery(query);
             int result = -1;
-            while(result != 0){
-                result = resultSet.getInt(0);
-                if(result == 3) return true;
+            while (resultSet.next()) {
+                result = resultSet.getInt(1);
+                if (result == 3)
+                    return true;
             }
             return false;
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
@@ -147,20 +154,29 @@ class UiMibd {
 
     public void printLaporanAirAdmin() {
         printAsciiBox(logo);
-        displaySarusun(0);
+        displaySarusun(NIK);
         System.out.println("Ketik '.' jika ingin kembali ke homepage");
         System.out.print("Pilihan(masukkan ID): ");
         String idInput = sc.next();
         System.out.println();
 
         if (idInput.equals(".") == false) {
-            System.out.println("Sarusun ini menggunakan 0 Liter air selama 1 hari terakhir");
-            System.out.println("Sarusun ini menggunakan 0 Liter air selama 1 minggu terakhir");
-            System.out.println("Sarusun ini menggunakan 0 Liter air selama 1 tahun terakhir");
-            System.out.println("Ketik apapun untuk kembali");
-            sc.next();
-            printHomePageAdmin();
-        }
+            ResultSet resultSet = null;
+            try {
+                String sql = "SELECT PenggunaanAirH, PenggunaanAirB, PenggunaanAirT FROM Sarusun WHERE IdS ="+idInput;
+                resultSet = statement.executeQuery(sql);
+                while(resultSet.next()){
+                    System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 hari terakhir%n", resultSet.getInt(1));
+                    System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 minggu terakhir%n", resultSet.getInt(2));
+                    System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 tahun terakhir%n", resultSet.getInt(3));
+                    System.out.println("Ketik apapun untuk kembali");
+                    sc.next();
+                    printHomePageAdmin();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }else printHomePageAdmin();
     }
 
     public void printLogDownload() {
@@ -189,92 +205,204 @@ class UiMibd {
 
     public void printLaporanAirUser() {
         printAsciiBox(logo);
-        displaySarusun(0);
+        displaySarusun(NIK);
         System.out.println("Ketik '.' jika ingin kembali ke homepage");
         System.out.print("Pilihan(masukkan ID): ");
         String idInput = sc.next();
         System.out.println();
 
         if (idInput.equals(".") == false) {
-            System.out.println("Sarusun ini menggunakan 0 Liter air selama 1 hari terakhir");
-            System.out.println("Sarusun ini menggunakan 0 Liter air selama 1 minggu terakhir");
-            System.out.println("Sarusun ini menggunakan 0 Liter air selama 1 tahun terakhir");
-            System.out.println("Ketik apapun untuk kembali");
-            sc.next();
-            printHomePageUser();
-        }
+            ResultSet resultSet = null;
+            try {
+                String sql = "SELECT PenggunaanAirH, PenggunaanAirB, PenggunaanAirT FROM Sarusun WHERE IdS ="+idInput;
+                resultSet = statement.executeQuery(sql);
+                while(resultSet.next()){
+                    System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 hari terakhir%n", resultSet.getInt(1));
+                    System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 minggu terakhir%n", resultSet.getInt(2));
+                    System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 tahun terakhir%n", resultSet.getInt(3));
+                    System.out.println("Ketik apapun untuk kembali");
+                    sc.next();
+                    printHomePageUser();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }else printHomePageUser();
     }
 
     public void printAktivasiPerangkatAdmin() {
         while (true) {
             printAsciiBox(logo);
-            displaySarusun(0);
+            displaySarusun(NIK);
             System.out.println("Ketik '.' jika ingin kembali ke homepage");
-            System.out.print("Pilihan(masukkan ID): ");
+            System.out.print("Pilihan (masukkan ID Sarusun): ");
             String idInput = sc.next();
+            if (idInput.equals(".")) {
+                printHomePageAdmin();
+                return;
+            }
             System.out.println();
-
-            System.out.println("Silahkan pilih perangkat di sarusun yang sudah dipilih:");
-            System.out.println("No.Serial           Status\n");
-            System.out.println("123456              Menyala");
-            System.out.println("654321              Mati");
+    
+            try {
+                String sql = "SELECT noSerial, statusAir FROM Perangkat WHERE IdS = '" + idInput + "'";
+                ResultSet resultSet = statement.executeQuery(sql);
+    
+                System.out.println("Silahkan pilih perangkat di sarusun yang sudah dipilih:");
+                System.out.println("No.Serial           Status");
+    
+                boolean found = false;
+                while (resultSet.next()) {
+                    String noSerial = resultSet.getString("noSerial");
+                    boolean statusAir = resultSet.getBoolean("statusAir"); // Asumsikan boolean
+                    String statusStr = statusAir ? "Menyala" : "Mati";
+                    System.out.printf("%-20s%s\n", noSerial, statusStr);
+                    found = true;
+                }
+    
+                if (!found) {
+                    System.out.println("(Belum ada perangkat yang terdaftar di Sarusun ini)");
+                    System.out.println("Ketik apapun untuk kembali");
+                    sc.next();
+                    continue;
+                }
+    
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+    
             System.out.println();
             System.out.println("Ketik '.' untuk memilih sarusun yang lain");
-            System.out.print("Pilihan(masukkan noSerial): ");
+            System.out.print("Pilihan (masukkan noSerial): ");
             String noSerialInput = sc.next();
-            if (noSerialInput.equals("."))
+            if (noSerialInput.equals(".")) {
                 continue;
-            else {
-                System.out.println("Perangkat IoT 123456 sekarang mati");
-                System.out.println("Ketik apapun untuk kembali");
-                sc.next();
-                break;
             }
+            
+            try {
+                String sql = "SELECT statusAir FROM Perangkat WHERE noSerial = '" + noSerialInput + "'";
+                ResultSet resultSet = statement.executeQuery(sql);
+                if (resultSet.next()) {
+                    boolean status = resultSet.getBoolean("statusAir");
+                    if(status == true){
+                        String sqlUpdate = "UPDATE Perangkat SET statusAir = 0 WHERE noSerial = '" + noSerialInput + "'";
+                        statement.executeUpdate(sqlUpdate);
+                    }else{
+                        String sqlUpdate = "UPDATE Perangkat SET statusAir = 1 WHERE noSerial = '" + noSerialInput + "'";
+                        statement.executeUpdate(sqlUpdate);
+                    }
+                    String statusStr = !status ? "menyala" : "mati";
+                    System.out.println("Perangkat IoT " + noSerialInput + " sekarang " + statusStr);
+                } else {
+                    System.out.println("Perangkat tidak ditemukan.");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+    
+            System.out.println("Ketik apapun untuk kembali");
+            sc.next();
+            break;
         }
+    
         printHomePageAdmin();
     }
 
     public void printAktivasiPerangkatUser() {
         while (true) {
             printAsciiBox(logo);
-            displaySarusun(0);
+            displaySarusun(NIK);
             System.out.println("Ketik '.' jika ingin kembali ke homepage");
-            System.out.print("Pilihan(masukkan ID): ");
+            System.out.print("Pilihan (masukkan ID Sarusun): ");
             String idInput = sc.next();
+            if (idInput.equals(".")) {
+                printHomePageAdmin();
+                return;
+            }
             System.out.println();
-
-            System.out.println("Silahkan pilih perangkat di sarusun yang sudah dipilih:");
-            System.out.println("No.Serial           Status\n");
-            System.out.println("123456              Menyala");
-            System.out.println("654321              Mati");
+    
+            try {
+                String sql = "SELECT noSerial, statusAir FROM Perangkat WHERE IdS = '" + idInput + "'";
+                ResultSet resultSet = statement.executeQuery(sql);
+    
+                System.out.println("Silahkan pilih perangkat di sarusun yang sudah dipilih:");
+                System.out.println("No.Serial           Status");
+    
+                boolean found = false;
+                while (resultSet.next()) {
+                    String noSerial = resultSet.getString("noSerial");
+                    boolean statusAir = resultSet.getBoolean("statusAir"); // Asumsikan boolean
+                    String statusStr = statusAir ? "Menyala" : "Mati";
+                    System.out.printf("%-20s%s\n", noSerial, statusStr);
+                    found = true;
+                }
+    
+                if (!found) {
+                    System.out.println("(Belum ada perangkat yang terdaftar di Sarusun ini)");
+                    System.out.println("Ketik apapun untuk kembali");
+                    sc.next();
+                    continue;
+                }
+    
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+    
             System.out.println();
             System.out.println("Ketik '.' untuk memilih sarusun yang lain");
-            System.out.print("Pilihan(masukkan noSerial): ");
+            System.out.print("Pilihan (masukkan noSerial): ");
             String noSerialInput = sc.next();
-            if (noSerialInput.equals("."))
+            if (noSerialInput.equals(".")) {
                 continue;
-            else {
-                System.out.println("Perangkat IoT 123456 sekarang mati");
-                System.out.println("Ketik apapun untuk kembali");
-                sc.next();
-                break;
             }
+            
+            try {
+                String sql = "SELECT statusAir FROM Perangkat WHERE noSerial = '" + noSerialInput + "'";
+                ResultSet resultSet = statement.executeQuery(sql);
+                if (resultSet.next()) {
+                    boolean status = resultSet.getBoolean("statusAir");
+                    if(status == true){
+                        String sqlUpdate = "UPDATE Perangkat SET statusAir = 0 WHERE noSerial = '" + noSerialInput + "'";
+                        statement.executeUpdate(sqlUpdate);
+                    }else{
+                        String sqlUpdate = "UPDATE Perangkat SET statusAir = 1 WHERE noSerial = '" + noSerialInput + "'";
+                        statement.executeUpdate(sqlUpdate);
+                    }
+                    String statusStr = !status ? "menyala" : "mati";
+                    System.out.println("Perangkat IoT " + noSerialInput + " sekarang " + statusStr);
+                } else {
+                    System.out.println("Perangkat tidak ditemukan.");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+    
+            System.out.println("Ketik apapun untuk kembali");
+            sc.next();
+            break;
         }
         printHomePageUser();
     }
 
     public void printPendaftaranPerangkat() {
         printAsciiBox(logo);
-        displaySarusun(0);
+        displaySarusun(NIK);
         System.out.println("Ketik '.' jika ingin kembali ke homepage");
         System.out.println("Masukkan data perangkat");
+        System.out.println("Nomor harus serial harus 16 digit dan tidak ada spasi atau karakter spesial");
         System.out.print("Nomor Serial : ");
-        String towerInput = sc.next();
-        if (towerInput.equals(".") == false) {
+        String noSerialInput = sc.next();
+        if (noSerialInput.equals(".") == false) {
             System.out.print("Id Sarusun lokasi perangkat: ");
-            String pengelolaInput = sc.next();
-            System.out.println();
-            System.out.println("Perangkat telah didaftar");
+            String IdS = sc.next();
+            String input = "'"+noSerialInput+"', "+0+", "+IdS;
+            String sql = "INSERT INTO Perangkat VALUES ("+input+")";
+            try {
+                statement.executeUpdate(sql);
+                System.out.println();
+                System.out.println("Perangkat telah didaftar");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             System.out.println("Ketik apapun untuk kembali kepada homepage");
             sc.next();
         }
@@ -307,12 +435,12 @@ class UiMibd {
                 System.out.print("Nomor telepon: ");
                 String noTelpInput = sc.next();
                 System.out.println();
-                try{
-                    String sql = "INSERT INTO [User] (NIK, nama, alamatDomisili, noTelp, OTP) VALUES ('" 
-                    + nikInput + "', '"+ namaInput + "', '"+ alamatInput + "', '"
-                    + noTelpInput + "', '"+ 123456 + "')";
-                    ResultSet resultSet = statement.executeQuery(sql);   
-                }catch(Exception e){
+                try {
+                    String sql = "INSERT INTO [User] (NIK, nama, alamatDomisili, noTelp, OTP) VALUES ('"
+                            + nikInput + "', '" + namaInput + "', '" + alamatInput + "', '"
+                            + noTelpInput + "', '" + 123456 + "')";
+                    ResultSet resultSet = statement.executeQuery(sql);
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 System.out.println("User telah didaftar");
@@ -322,7 +450,7 @@ class UiMibd {
                 System.out.println("Masukkan data sarusun");
                 System.out.print("Id Tower: ");
                 String towerInput = sc.next();
-                if(towerInput.equals("."))
+                if (towerInput.equals("."))
                     continue;
                 System.out.print("Lantai: ");
                 String lantaiInput = sc.next();
@@ -331,13 +459,13 @@ class UiMibd {
                 String pemilikInput = sc.next();
                 System.out.println();
                 try {
-                    String sql = "INSERT INTO Sarusun (Lantai, penggunaanAirH, penggunaanAirB, penggunaanAirT, nikPemilik, IdT) VALUES ('" 
-                    + lantaiInput + "', '"+ 0 + "', '"+ 0  + 0 + "', '"+ pemilikInput 
-                    + "', '"+ towerInput + "')";
-                    ResultSet resultSet = statement.executeQuery(sql);  
+                    String sql = "INSERT INTO Sarusun (Lantai, penggunaanAirH, penggunaanAirB, penggunaanAirT, nikPemilik, IdT) VALUES ('"
+                            + lantaiInput + "', '" + 0 + "', '" + 0 + 0 + "', '" + pemilikInput
+                            + "', '" + towerInput + "')";
+                    ResultSet resultSet = statement.executeQuery(sql);
                 } catch (Exception e) {
                     e.printStackTrace();
-                }  
+                }
                 System.out.println("Sarusun telah didaftar");
             } else if (input.equals("3")) {
                 displayTower();
@@ -352,9 +480,9 @@ class UiMibd {
                 String pengelolaInput = sc.next();
                 System.out.println();
                 try {
-                    String sql = "INSERT INTO Tower (IdT, nama) VALUES ('" 
-                    + towerInput + "', '"+ pengelolaInput + "')";
-                    ResultSet resultSet = statement.executeQuery(sql);  
+                    String sql = "INSERT INTO Tower (IdT, nama) VALUES ('"
+                            + towerInput + "', '" + pengelolaInput + "')";
+                    ResultSet resultSet = statement.executeQuery(sql);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -368,14 +496,14 @@ class UiMibd {
                 System.out.println();
                 if (towerInput.equals("."))
                     continue;
-                displaySarusun(0);
+                displaySarusun(NIK);
                 System.out.print("Id Sarusun lokasi perangkat: ");
                 String sarusunInput = sc.next();
                 System.out.println();
                 try {
-                    String sql = "INSERT INTO Perangkat (noSerial, IdS) VALUES ('" + towerInput 
-                    + "', '"+ sarusunInput+"')";
-                    ResultSet resultSet = statement.executeQuery(sql);  
+                    String sql = "INSERT INTO Perangkat (noSerial, IdS) VALUES ('" + towerInput
+                            + "', '" + sarusunInput + "')";
+                    ResultSet resultSet = statement.executeQuery(sql);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -387,13 +515,35 @@ class UiMibd {
         }
     }
 
-    public void displaySarusun(int idS) {
+    public ResultSet displaySarusun(String NIK) {
+        ResultSet resultSet = null;
+        try {
+            String sql = "SELECT IdS, nama, Sarusun.Lantai FROM Sarusun JOIN Tower ON Sarusun.IdT = Tower.IdT"
+                    + " LEFT JOIN (SELECT IdT FROM Pengelola WHERE nikPengelola = '" + NIK
+                    + "') AS Kelola ON Kelola.IdT = Sarusun.IdT"
+                    + " WHERE nikPemilik = '"+ NIK +"' OR Sarusun.IdT = Kelola.IdT";
+            resultSet = statement.executeQuery(sql);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         System.out.println();
         System.out.println("Silahkan pilih sarusun yang dimiliki akses:");
-        System.out.println("ID              TOWER/LANTAI\n");
-        System.out.println("1               PPAG/2A");
-        System.out.println("10              Gedung 10/2");
+        System.out.println("ID       TOWER/LANTAI\n");
+        try {
+            while (resultSet.next()) {
+                String id = resultSet.getString("IdS");
+                String nama = resultSet.getString("nama");
+                String lantai = resultSet.getString("Lantai");
+                // %-4d = left-justify in 4 spacess
+                // then a space, then the tower/layanan combo
+                System.out.printf("%-8s %s/%s%n", id, nama, lantai);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         System.out.println();
+        return resultSet;
     }
 
     public void displayAllSarusun() {
