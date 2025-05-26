@@ -1,0 +1,19 @@
+public static void printPendaftaranPerangkat() {
+        printAsciiBox(logo);
+        displaySarusun(0);
+        System.out.println("Ketik '.' jika ingin kembali ke homepage");
+        System.out.println("Masukkan data perangkat");
+        System.out.print("Nomor Serial : ");
+        String towerInput = sc.next();
+        if (towerInput.equals(".") == false) {
+            System.out.print("Id Sarusun lokasi perangkat: ");
+            String pengelolaInput = sc.next();
+            System.out.println();
+            String sql = "INSERT INTO Perangkat (noSerial, statusAir, IdS) VALUES ('" + towerInput + "', '"+ 0 + "', '" pengelolaInput"')'";
+            resultSet = statement.executeQuery(sql);
+            System.out.println("Perangkat telah didaftar");
+            System.out.println("Ketik apapun untuk kembali kepada homepage");
+            sc.next();
+        }
+        printHomePageUser();
+    }
