@@ -21,7 +21,6 @@ public class SQLDatabaseConnection {
 
         try (Connection connection = DriverManager.getConnection(connectionUrl);) {
             // Code here.
-            System.out.println("SQL connection successful");
             Statement statement = connection.createStatement();
             new UiMibd(connection, statement);
         }
