@@ -6,7 +6,8 @@ CREATE TABLE LogPengguna
 CREATE TABLE Tower
 (
     IdT INT IDENTITY (1,1) PRIMARY KEY,
-	nama VARCHAR(50)
+	nama VARCHAR(50),
+	deleted BIT NOT NULL DEFAULT 0
 )
 
 CREATE TABLE [Role]
@@ -21,7 +22,8 @@ CREATE TABLE [User]
 	nama VARCHAR(100),
 	alamatDomisili VARCHAR(100),
 	noTelp CHAR(12),
-	OTP CHAR(6)
+	OTP CHAR(6),
+	deleted BIT NOT NULL DEFAULT 0
 )
 
 CREATE TABLE RoleUser
@@ -35,7 +37,8 @@ CREATE TABLE Sarusun
 	IdS INT IDENTITY(1,1) PRIMARY KEY,
 	Lantai VARCHAR(30),
 	nikPemilik CHAR(16) FOREIGN KEY REFERENCES [User] (NIK),
-	IdT INT FOREIGN KEY REFERENCES Tower (IdT)
+	IdT INT FOREIGN KEY REFERENCES Tower (IdT),
+	deleted BIT NOT NULL DEFAULT 0
 )
 
 CREATE TABLE PemakaianAir
@@ -50,7 +53,8 @@ CREATE TABLE Perangkat
 (
 	noSerial CHAR(16) PRIMARY KEY,
 	statusAir BIT,
-	IdS INT FOREIGN KEY REFERENCES Sarusun (IdS)
+	IdS INT FOREIGN KEY REFERENCES Sarusun (IdS),
+	deleted BIT NOT NULL DEFAULT 0
 )
 
 CREATE TABLE Pengelola
@@ -103,12 +107,13 @@ INSERT INTO RoleUser (NIK, IdR) VALUES
 ('5234567890123456', 1);  -- Eka as Pemilik
 
 -- Insert Sarusun (units)
-INSERT INTO Sarusun (Lantai, penggunaanAirH, penggunaanAirB, penggunaanAirT, nikPemilik, IdT) VALUES
-('1A', 10, 5, 2, '1234567890123456', 1),
-('2B', 15, 7, 3, '3234567890123456', 1),
-('3C', 20, 10, 5, '5234567890123456', 2),
-('4D', 8, 4, 2, '1234567890123456', 3),
-('5E', 18, 9, 4, '5234567890123456', 2);
+INSERT INTO Sarusun (Lantai, nikPemilik, IdT) VALUES
+('1A', '1234567890123456', 1),
+('2B', '3234567890123456', 1),
+('3C', '5234567890123456', 2),
+('4D', '1234567890123456', 3),
+('5E', '5234567890123456', 2),
+('2', '4234567890123456', 3);
 
 -- Insert Perangkat (devices)
 INSERT INTO Perangkat (noSerial, statusAir, IdS) VALUES
@@ -145,6 +150,7 @@ BEGIN
     INSERT INTO PemakaianAir (IdS, tanggal, literAir) VALUES (3, @d, CAST(RAND() * 500 + 100 AS INT));
     INSERT INTO PemakaianAir (IdS, tanggal, literAir) VALUES (4, @d, CAST(RAND() * 500 + 100 AS INT));
     INSERT INTO PemakaianAir (IdS, tanggal, literAir) VALUES (5, @d, CAST(RAND() * 500 + 100 AS INT));
+	INSERT INTO PemakaianAir (IdS, tanggal, literAir) VALUES (6, @d, CAST(RAND() * 500 + 100 AS INT));
 
     -- Advance to next day
     SET @d = DATEADD(DAY, 1, @d);

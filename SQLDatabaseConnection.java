@@ -1,6 +1,5 @@
 import java.sql.Statement;
 import java.util.Scanner;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -61,7 +60,7 @@ class UiMibd {
         System.out.print("NIK: ");
         String nikInput = sc.next();
         System.out.println();
-        query = "SELECT OTP FROM [User] WHERE NIK = '" + nikInput + "'";
+        query = "SELECT OTP FROM [User] WHERE NIK = '" + nikInput + "' AND deleted = 0";
         ResultSet resultSet = null;
         String otpValid = null;
         try {
@@ -117,7 +116,8 @@ class UiMibd {
         System.out.println("1) Melihat laporan pemakaian air");
         System.out.println("2) Mematikan/Menyalakan perangkat IoT");
         System.out.println("3) Mendaftar entitas");
-        System.out.println("4) Mendownload log aktivitas\n");
+        System.out.println("4) Mendelete entitas");
+        System.out.println("5) Mendownload log aktivitas\n");
         System.out.print("Pilihan(masukkan angka): ");
         int pilihan = sc.nextInt();
         if (pilihan == 1) {
@@ -150,69 +150,86 @@ class UiMibd {
     }
 
     public void printLaporanAirAdmin() {
-        printAsciiBox(logo);
-        displaySarusun(NIK);
-        System.out.println("Ketik '.' jika ingin kembali ke homepage");
-        System.out.print("Pilihan(masukkan ID): ");
-        String idInput = sc.next();
-        System.out.println();
-        if (idInput.equals(".") == false) {
-            ResultSet resultSet = null;
-            try {
-                // laporan hari ini
-                String tanggal = java.time.LocalDate.now()
-                        .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
-                String sql = "SELECT SUM(literAir) FROM PemakaianAir WHERE tanggal = '" + tanggal + "'AND IdS ="
-                        + idInput;
-                resultSet = statement.executeQuery(sql);
-                while (resultSet.next()) {
-                    System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 hari terakhir%n",
-                            resultSet.getInt(1));
+        while (true) {
+            printAsciiBox(logo);
+            displaySarusun(NIK);
+            System.out.println("Ketik '.' jika ingin kembali ke homepage");
+            System.out.print("Pilihan(masukkan ID): ");
+            String idInput = sc.next();
+            System.out.println();
+            while (true) {
+                try {
+                    String sql = "SELECT * FROM Sarusun WHERE deleted = 0 AND IdS=" + idInput;
+                    ResultSet resultSet = statement.executeQuery(sql);
+                    if (resultSet.next() == false) {
+                        System.out.println("Tidak ada sarusun dengan Id itu atau sarusun dengan Id itu sudah didelete");
+                        System.out.print("Masukkan Id Sarusun yang lainnya:");
+                        idInput = sc.next();
+                    } else
+                        break;
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-
-                // laporan dari hari ini sampai 1 minggu sebelumnya
-                String tanggalSebelum = java.time.LocalDate.now().minusWeeks(1)
-                        .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
-                sql = "SELECT SUM(literAir) FROM PemakaianAir WHERE tanggal <= '" + tanggal
-                        + "' AND IdS =" + idInput + " AND tanggal >= '" + tanggalSebelum + "'";
-                resultSet = statement.executeQuery(sql);
-
-                while (resultSet.next()) {
-                    System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 minggu terakhir%n",
-                            resultSet.getInt(1));
-                }
-
-                // laporan dari hari ini sampai 1 bulan sebelumnya
-                tanggalSebelum = java.time.LocalDate.now().minusMonths(1)
-                        .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
-                sql = "SELECT SUM(literAir) FROM PemakaianAir WHERE tanggal <= '" + tanggal
-                        + "' AND IdS =" + idInput + " AND tanggal >= '" + tanggalSebelum + "'";
-                resultSet = statement.executeQuery(sql);
-
-                while (resultSet.next()) {
-                    System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 Bulan terakhir%n",
-                            resultSet.getInt(1));
-                }
-
-                // laporan dari hari ini sampai 1 tahun sebelumnya
-                tanggalSebelum = java.time.LocalDate.now().minusYears(1)
-                        .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
-                sql = "SELECT SUM(literAir) FROM PemakaianAir WHERE tanggal <= '" + tanggal
-                        + "' AND IdS =" + idInput + " AND tanggal >= '" + tanggalSebelum + "'";
-                resultSet = statement.executeQuery(sql);
-
-                while (resultSet.next()) {
-                    System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 Tahun terakhir%n",
-                            resultSet.getInt(1));
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
-            System.out.println("Ketik apapun untuk kembali");
-            sc.next();
-            printHomePageAdmin();
-        } else
-            printHomePageAdmin();
+            if (idInput.equals(".") == false) {
+                ResultSet resultSet = null;
+                try {
+                    // laporan hari ini
+                    String tanggal = java.time.LocalDate.now()
+                            .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+                    String sql = "SELECT SUM(literAir) FROM PemakaianAir WHERE tanggal = '" + tanggal + "'AND IdS ="
+                            + idInput;
+                    resultSet = statement.executeQuery(sql);
+                    while (resultSet.next()) {
+                        System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 hari terakhir%n",
+                                resultSet.getInt(1));
+                    }
+
+                    // laporan dari hari ini sampai 1 minggu sebelumnya
+                    String tanggalSebelum = java.time.LocalDate.now().minusWeeks(1)
+                            .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+                    sql = "SELECT SUM(literAir) FROM PemakaianAir WHERE tanggal <= '" + tanggal
+                            + "' AND IdS =" + idInput + " AND tanggal >= '" + tanggalSebelum + "'";
+                    resultSet = statement.executeQuery(sql);
+
+                    while (resultSet.next()) {
+                        System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 minggu terakhir%n",
+                                resultSet.getInt(1));
+                    }
+
+                    // laporan dari hari ini sampai 1 bulan sebelumnya
+                    tanggalSebelum = java.time.LocalDate.now().minusMonths(1)
+                            .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+                    sql = "SELECT SUM(literAir) FROM PemakaianAir WHERE tanggal <= '" + tanggal
+                            + "' AND IdS =" + idInput + " AND tanggal >= '" + tanggalSebelum + "'";
+                    resultSet = statement.executeQuery(sql);
+
+                    while (resultSet.next()) {
+                        System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 Bulan terakhir%n",
+                                resultSet.getInt(1));
+                    }
+
+                    // laporan dari hari ini sampai 1 tahun sebelumnya
+                    tanggalSebelum = java.time.LocalDate.now().minusYears(1)
+                            .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+                    sql = "SELECT SUM(literAir) FROM PemakaianAir WHERE tanggal <= '" + tanggal
+                            + "' AND IdS =" + idInput + " AND tanggal >= '" + tanggalSebelum + "'";
+                    resultSet = statement.executeQuery(sql);
+
+                    while (resultSet.next()) {
+                        System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 Tahun terakhir%n",
+                                resultSet.getInt(1));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                System.out.println("Ketik apapun untuk kembali ke homepage");
+                sc.next();
+                break;
+            } else
+                break;
+        }
+        printHomePageAdmin();
     }
 
     public void printLogDownload() {
@@ -240,69 +257,86 @@ class UiMibd {
     }
 
     public void printLaporanAirUser() {
-        printAsciiBox(logo);
-        displaySarusun(NIK);
-        System.out.println("Ketik '.' jika ingin kembali ke homepage");
-        System.out.print("Pilihan(masukkan ID): ");
-        String idInput = sc.next();
-        System.out.println();
-        if (idInput.equals(".") == false) {
-            ResultSet resultSet = null;
-            try {
-                // laporan hari ini
-                String tanggal = java.time.LocalDate.now()
-                        .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
-                String sql = "SELECT SUM(literAir) FROM PemakaianAir WHERE tanggal = '" + tanggal + "'AND IdS ="
-                        + idInput;
-                resultSet = statement.executeQuery(sql);
-                while (resultSet.next()) {
-                    System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 hari terakhir%n",
-                            resultSet.getInt(1));
+        while (true) {
+            printAsciiBox(logo);
+            displaySarusun(NIK);
+            System.out.println("Ketik '.' jika ingin kembali ke homepage");
+            System.out.print("Pilihan(masukkan ID): ");
+            String idInput = sc.next();
+            System.out.println();
+            while (true) {
+                try {
+                    String sql = "SELECT * FROM Sarusun WHERE deleted = 0 AND IdS=" + idInput;
+                    ResultSet resultSet = statement.executeQuery(sql);
+                    if (resultSet.next() == false) {
+                        System.out.println("Tidak ada sarusun dengan Id itu atau sarusun dengan Id itu sudah didelete");
+                        System.out.print("Masukkan Id Sarusun yang lainnya:");
+                        idInput = sc.next();
+                    } else
+                        break;
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-
-                // laporan dari hari ini sampai 1 minggu sebelumnya
-                String tanggalSebelum = java.time.LocalDate.now().minusWeeks(1)
-                        .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
-                sql = "SELECT SUM(literAir) FROM PemakaianAir WHERE tanggal <= '" + tanggal
-                        + "' AND IdS =" + idInput + " AND tanggal >= '" + tanggalSebelum + "'";
-                resultSet = statement.executeQuery(sql);
-
-                while (resultSet.next()) {
-                    System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 minggu terakhir%n",
-                            resultSet.getInt(1));
-                }
-
-                // laporan dari hari ini sampai 1 bulan sebelumnya
-                tanggalSebelum = java.time.LocalDate.now().minusMonths(1)
-                        .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
-                sql = "SELECT SUM(literAir) FROM PemakaianAir WHERE tanggal <= '" + tanggal
-                        + "' AND IdS =" + idInput + " AND tanggal >= '" + tanggalSebelum + "'";
-                resultSet = statement.executeQuery(sql);
-
-                while (resultSet.next()) {
-                    System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 Bulan terakhir%n",
-                            resultSet.getInt(1));
-                }
-
-                // laporan dari hari ini sampai 1 tahun sebelumnya
-                tanggalSebelum = java.time.LocalDate.now().minusYears(1)
-                        .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
-                sql = "SELECT SUM(literAir) FROM PemakaianAir WHERE tanggal <= '" + tanggal
-                        + "' AND IdS =" + idInput + " AND tanggal >= '" + tanggalSebelum + "'";
-                resultSet = statement.executeQuery(sql);
-
-                while (resultSet.next()) {
-                    System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 Tahun terakhir%n",
-                            resultSet.getInt(1));
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
-            System.out.println("Ketik apapun untuk kembali");
-            sc.next();
-            printHomePageUser();
-        } else
-            printHomePageUser();
+            if (idInput.equals(".") == false) {
+                ResultSet resultSet = null;
+                try {
+                    // laporan hari ini
+                    String tanggal = java.time.LocalDate.now()
+                            .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+                    String sql = "SELECT SUM(literAir) FROM PemakaianAir WHERE tanggal = '" + tanggal + "'AND IdS ="
+                            + idInput;
+                    resultSet = statement.executeQuery(sql);
+                    while (resultSet.next()) {
+                        System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 hari terakhir%n",
+                                resultSet.getInt(1));
+                    }
+
+                    // laporan dari hari ini sampai 1 minggu sebelumnya
+                    String tanggalSebelum = java.time.LocalDate.now().minusWeeks(1)
+                            .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+                    sql = "SELECT SUM(literAir) FROM PemakaianAir WHERE tanggal <= '" + tanggal
+                            + "' AND IdS =" + idInput + " AND tanggal >= '" + tanggalSebelum + "'";
+                    resultSet = statement.executeQuery(sql);
+
+                    while (resultSet.next()) {
+                        System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 minggu terakhir%n",
+                                resultSet.getInt(1));
+                    }
+
+                    // laporan dari hari ini sampai 1 bulan sebelumnya
+                    tanggalSebelum = java.time.LocalDate.now().minusMonths(1)
+                            .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+                    sql = "SELECT SUM(literAir) FROM PemakaianAir WHERE tanggal <= '" + tanggal
+                            + "' AND IdS =" + idInput + " AND tanggal >= '" + tanggalSebelum + "'";
+                    resultSet = statement.executeQuery(sql);
+
+                    while (resultSet.next()) {
+                        System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 Bulan terakhir%n",
+                                resultSet.getInt(1));
+                    }
+
+                    // laporan dari hari ini sampai 1 tahun sebelumnya
+                    tanggalSebelum = java.time.LocalDate.now().minusYears(1)
+                            .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+                    sql = "SELECT SUM(literAir) FROM PemakaianAir WHERE tanggal <= '" + tanggal
+                            + "' AND IdS =" + idInput + " AND tanggal >= '" + tanggalSebelum + "'";
+                    resultSet = statement.executeQuery(sql);
+
+                    while (resultSet.next()) {
+                        System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 Tahun terakhir%n",
+                                resultSet.getInt(1));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                System.out.println("Ketik apapun untuk kembali");
+                sc.next();
+                break;
+            } else
+                break;
+        }
+        printHomePageUser();
     }
 
     public void printAktivasiPerangkatAdmin() {
@@ -312,6 +346,20 @@ class UiMibd {
             System.out.println("Ketik '.' jika ingin kembali ke homepage");
             System.out.print("Pilihan (masukkan ID Sarusun): ");
             String idInput = sc.next();
+            while (true) {
+                try {
+                    String sql = "SELECT * FROM Sarusun WHERE deleted = 0 AND IdS=" + idInput;
+                    ResultSet resultSet = statement.executeQuery(sql);
+                    if (resultSet.next() == false) {
+                        System.out.println("Tidak ada sarusun dengan Id itu atau sarusun dengan Id itu sudah didelete");
+                        System.out.print("Masukkan Id Sarusun yang lainnya:");
+                        idInput = sc.next();
+                    } else
+                        break;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
             if (idInput.equals(".")) {
                 printHomePageAdmin();
                 return;
@@ -319,7 +367,7 @@ class UiMibd {
             System.out.println();
 
             try {
-                String sql = "SELECT noSerial, statusAir FROM Perangkat WHERE IdS = '" + idInput + "'";
+                String sql = "SELECT noSerial, statusAir FROM Perangkat WHERE deleted = 0 AND IdS = '" + idInput + "'";
                 ResultSet resultSet = statement.executeQuery(sql);
 
                 System.out.println("Silahkan pilih perangkat di sarusun yang sudah dipilih:");
@@ -354,7 +402,7 @@ class UiMibd {
             }
 
             try {
-                String sql = "SELECT statusAir FROM Perangkat WHERE noSerial = '" + noSerialInput + "'";
+                String sql = "SELECT statusAir FROM Perangkat WHERE deleted = 0 AND noSerial = '" + noSerialInput + "'";
                 ResultSet resultSet = statement.executeQuery(sql);
                 if (resultSet.next()) {
                     boolean status = resultSet.getBoolean("statusAir");
@@ -395,10 +443,24 @@ class UiMibd {
                 printHomePageAdmin();
                 return;
             }
+            while (true) {
+                try {
+                    String sql = "SELECT * FROM Sarusun WHERE deleted = 0 AND IdS=" + idInput;
+                    ResultSet resultSet = statement.executeQuery(sql);
+                    if (resultSet.next() == false) {
+                        System.out.println("Tidak ada sarusun dengan Id itu atau sarusun dengan Id itu sudah didelete");
+                        System.out.print("Masukkan Id Sarusun yang lainnya:");
+                        idInput = sc.next();
+                    } else
+                        break;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
             System.out.println();
 
             try {
-                String sql = "SELECT noSerial, statusAir FROM Perangkat WHERE IdS = '" + idInput + "'";
+                String sql = "SELECT noSerial, statusAir FROM Perangkat WHERE deleted = 0 AND IdS = '" + idInput + "'";
                 ResultSet resultSet = statement.executeQuery(sql);
 
                 System.out.println("Silahkan pilih perangkat di sarusun yang sudah dipilih:");
@@ -433,7 +495,7 @@ class UiMibd {
             }
 
             try {
-                String sql = "SELECT statusAir FROM Perangkat WHERE noSerial = '" + noSerialInput + "'";
+                String sql = "SELECT statusAir FROM Perangkat WHERE deleted = 0 AND noSerial = '" + noSerialInput + "'";
                 ResultSet resultSet = statement.executeQuery(sql);
                 if (resultSet.next()) {
                     boolean status = resultSet.getBoolean("statusAir");
@@ -473,6 +535,20 @@ class UiMibd {
         if (noSerialInput.equals(".") == false) {
             System.out.print("Id Sarusun lokasi perangkat: ");
             String IdS = sc.next();
+            while (true) {
+                try {
+                    String sql = "SELECT * FROM Sarusun WHERE deleted = 0 AND IdS=" + IdS;
+                    ResultSet resultSet = statement.executeQuery(sql);
+                    if (resultSet.next() == false) {
+                        System.out.println("Tidak ada sarusun dengan Id itu atau sarusun dengan Id itu sudah didelete");
+                        System.out.print("Masukkan Id Sarusun yang lainnya:");
+                        IdS = sc.next();
+                    } else
+                        break;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
             String input = "'" + noSerialInput + "', " + 0 + ", " + IdS;
             String sql = "INSERT INTO Perangkat VALUES (" + input + ")";
             try {
@@ -518,7 +594,7 @@ class UiMibd {
                     String sql = "INSERT INTO [User] (NIK, nama, alamatDomisili, noTelp, OTP) VALUES ('"
                             + nikInput + "', '" + namaInput + "', '" + alamatInput + "', '"
                             + noTelpInput + "', '" + 123456 + "')";
-                    ResultSet resultSet = statement.executeQuery(sql);
+                    statement.executeUpdate(sql);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -531,17 +607,46 @@ class UiMibd {
                 String towerInput = sc.next();
                 if (towerInput.equals("."))
                     continue;
+                while (true) {
+                    try {
+                        String sql = "SELECT * FROM Tower WHERE deleted = 0 AND IdT=" + towerInput;
+                        ResultSet resultSet = statement.executeQuery(sql);
+                        if (resultSet.next() == false) {
+                            System.out.println("Tidak ada tower dengan Id itu atau tower dengan Id itu sudah didelete");
+                            System.out.print("Masukkan Id Tower Lain:");
+                            towerInput = sc.next();
+                        } else
+                            break;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
                 System.out.print("Lantai: ");
                 String lantaiInput = sc.next();
                 displayUser();
                 System.out.print("NIK Pemilik: ");
                 String pemilikInput = sc.next();
+                while (true) {
+                    try {
+                        String sql = "SELECT * FROM [User] WHERE deleted = 0 AND NIK='" + pemilikInput + "'";
+                        ResultSet resultSet = statement.executeQuery(sql);
+                        if (resultSet.next() == false) {
+                            System.out.println(
+                                    "Tidak ada User dengan NIK itu atau User dengan NIK itu sudah didelete");
+                            System.out.print("Masukkan NIK yang lainnya:");
+                            pemilikInput = sc.next();
+                        } else
+                            break;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
                 System.out.println();
                 try {
                     String sql = "INSERT INTO Sarusun (Lantai, penggunaanAirH, penggunaanAirB, penggunaanAirT, nikPemilik, IdT) VALUES ('"
                             + lantaiInput + "', '" + 0 + "', '" + 0 + 0 + "', '" + pemilikInput
                             + "', '" + towerInput + "')";
-                    ResultSet resultSet = statement.executeQuery(sql);
+                    statement.executeUpdate(sql);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -551,17 +656,34 @@ class UiMibd {
                 System.out.println("Ketik '.' untuk memilih entitas lainnya");
                 System.out.println("Masukkan data tower");
                 System.out.print("Nama Tower: ");
-                String towerInput = sc.next();
-                if (towerInput.equals("."))
+                String namaTowerInput = sc.next();
+                if (namaTowerInput.equals("."))
                     continue;
                 displayUser();
-                System.out.print("Nama Pengelola: ");
+                System.out.print("NIK Pengelola: ");
                 String pengelolaInput = sc.next();
+                while (true) {
+                    try {
+                        String sql = "SELECT * FROM [User] WHERE deleted = 0 AND NIK='" + pengelolaInput + "'";
+                        ResultSet resultSet = statement.executeQuery(sql);
+                        if (resultSet.next() == false) {
+                            System.out.println(
+                                    "Tidak ada User dengan NIK itu atau User dengan NIK itu sudah didelete");
+                            System.out.print("Masukkan NIK yang lainnya:");
+                            pengelolaInput = sc.next();
+                        } else
+                            break;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
                 System.out.println();
                 try {
-                    String sql = "INSERT INTO Tower (IdT, nama) VALUES ('"
-                            + towerInput + "', '" + pengelolaInput + "')";
-                    ResultSet resultSet = statement.executeQuery(sql);
+                    String sql = "INSERT INTO Tower (nama) VALUES ('"
+                            + namaTowerInput + "')";
+                    statement.executeUpdate(sql);
+                    sql = "INSERT INTO Pengelola VALUES((SELECT MAX(IdT) FROM Tower), '" + pengelolaInput + "'')";
+                    statement.executeUpdate(sql);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -578,6 +700,21 @@ class UiMibd {
                 displaySarusun(NIK);
                 System.out.print("Id Sarusun lokasi perangkat: ");
                 String sarusunInput = sc.next();
+                while (true) {
+                    try {
+                        String sql = "SELECT * FROM Sarusun WHERE deleted = 0 AND IdS=" + sarusunInput;
+                        ResultSet resultSet = statement.executeQuery(sql);
+                        if (resultSet.next() == false) {
+                            System.out.println(
+                                    "Tidak ada sarusun dengan Id itu atau sarusun dengan Id itu sudah didelete");
+                            System.out.print("Masukkan Id Sarusun yang lainnya:");
+                            sarusunInput = sc.next();
+                        } else
+                            break;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
                 System.out.println();
                 try {
                     String sql = "INSERT INTO Perangkat (noSerial, IdS) VALUES ('" + towerInput
@@ -594,13 +731,93 @@ class UiMibd {
         }
     }
 
+    public void deleteEntitas() {
+        while (true) {
+            printAsciiBox(logo);
+            System.out.println("Silahkan pilih entitas apa yang akan didelete");
+            System.out.println("1) User");
+            System.out.println("2) Sarusun");
+            System.out.println("3) Tower");
+            System.out.println("4) Perangkat\n");
+            System.out.println("Ketik '.' untuk kembali ke homepage");
+            System.out.print("Pilihan(masukkan angka): ");
+            String input = sc.next();
+            System.out.println();
+            if (input.equals("1")) {
+                System.out.println("Ketik '.' untuk memilih entitas lainnya");
+                displayUser();
+                System.out.println("Masukkan NIK user");
+                System.out.print("NIK: ");
+                String nikInput = sc.next();
+                if (nikInput.equals("."))
+                    continue;
+                try {
+                    String sql = "UPDATE [User] SET deleted = 1 WHERE NIK = '" + nikInput + "'";
+                    statement.executeUpdate(sql);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                System.out.println("User telah didelete");
+            } else if (input.equals("2")) {
+                displayAllSarusun();
+                System.out.println("Ketik '.' untuk memilih entitas lainnya");
+                System.out.println("Masukkan Id Sarusun");
+                System.out.print("Id Sarusun: ");
+                String inputSarusun = sc.next();
+                if (inputSarusun.equals("."))
+                    continue;
+                try {
+                    String sql = "UPDATE Sarusun SET deleted = 1 WHERE IdS = '" + inputSarusun + "'";
+                    statement.executeUpdate(sql);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                System.out.println("Sarusun telah didelete");
+            } else if (input.equals("3")) {
+                displayTower();
+                System.out.println("Ketik '.' untuk memilih entitas lainnya");
+                System.out.println("Masukkan Id Tower");
+                System.out.print("Id Tower: ");
+                String towerInput = sc.next();
+                if (towerInput.equals("."))
+                    continue;
+                try {
+                    String sql = "UPDATE Tower SET deleted = 1 WHERE IdT = '" + towerInput + "'";
+                    statement.executeUpdate(sql);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                System.out.println("Tower telah didelete");
+            } else if (input.equals("4")) {
+                displayPerangkat();
+                System.out.println("Ketik '.' untuk memilih entitas lainnya");
+                System.out.println("Masukkan nomor serial perangkat");
+                System.out.print("Nomor Serial : ");
+                String inputNoSerial = sc.next();
+                System.out.println();
+                if (inputNoSerial.equals("."))
+                    continue;
+                try {
+                    String sql = "UPDATE Perangkat SET deleted = 1 WHERE noSerial = '" + inputNoSerial + "'";
+                    ResultSet resultSet = statement.executeQuery(sql);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                System.out.println("Perangkat telah didelete");
+            }
+            System.out.println("Ketik apapun untuk kembali kepada homepage");
+            sc.next();
+            printHomePageAdmin();
+        }
+    }
+
     public ResultSet displaySarusun(String NIK) {
         ResultSet resultSet = null;
         try {
             String sql = "SELECT IdS, nama, Sarusun.Lantai FROM Sarusun JOIN Tower ON Sarusun.IdT = Tower.IdT"
                     + " LEFT JOIN (SELECT IdT FROM Pengelola WHERE nikPengelola = '" + NIK
                     + "') AS Kelola ON Kelola.IdT = Sarusun.IdT"
-                    + " WHERE nikPemilik = '" + NIK + "' OR Sarusun.IdT = Kelola.IdT";
+                    + " WHERE Sarusun.deleted = 0 AND nikPemilik = '" + NIK + "' OR Sarusun.IdT = Kelola.IdT";
             resultSet = statement.executeQuery(sql);
         } catch (Exception e) {
             e.printStackTrace();
@@ -626,19 +843,37 @@ class UiMibd {
     }
 
     public void displayAllSarusun() {
+        ResultSet resultSet = null;
+        try {
+            String sql = "SELECT IdS, nama, Sarusun.Lantai FROM Sarusun JOIN Tower ON Sarusun.IdT = Tower.IdT"
+                    + " LEFT JOIN (SELECT IdT FROM Pengelola WHERE nikPengelola = '" + NIK
+                    + "') AS Kelola ON Kelola.IdT = Sarusun.IdT"
+                    + " WHERE deleted = 0";
+            resultSet = statement.executeQuery(sql);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         System.out.println();
-        System.out.println("Sarusun yang terdaftar:");
-        System.out.println("ID              TOWER/LANTAI\n");
-        System.out.println("1               PPAG/2A");
-        System.out.println("2               Gedung 10/2");
-        System.out.println("3               PPAG/3");
-        System.out.println("4               Gedung 10/1");
+        System.out.println("ID       TOWER/LANTAI\n");
+        try {
+            while (resultSet.next()) {
+                String id = resultSet.getString("IdS");
+                String nama = resultSet.getString("nama");
+                String lantai = resultSet.getString("Lantai");
+                // %-4d = left-justify in 4 spacess
+                // then a space, then the tower/layanan combo
+                System.out.printf("%-8s %s/%s%n", id, nama, lantai);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         System.out.println();
     }
 
     public void displayUser() {
         System.out.println();
-        String sql = "SELECT NIK, nama FROM [User]";
+        String sql = "SELECT NIK, nama FROM [User] WHERE deleted = 0";
         try {
             ResultSet resultSet = statement.executeQuery(sql);
             System.out.println("NIK                  Nama");
@@ -654,7 +889,7 @@ class UiMibd {
     public void displayTower() {
         System.out.println();
         System.out.println("Tower yang terdaftar:");
-        String sql = "SELECT * FROM TOWER";
+        String sql = "SELECT * FROM Tower WHERE deleted = 0";
         try {
             ResultSet resultSet = statement.executeQuery(sql);
             System.out.println("ID       Nama\n");
@@ -665,6 +900,25 @@ class UiMibd {
 
                 System.out.printf("%-8s %s%n", idTower, nama);
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println();
+    }
+
+    public void displayPerangkat() {
+        System.out.println();
+        String sql = "SELECT noSerial, IdS FROM Perangkat WHERE deleted = 0";
+        try {
+            ResultSet resultSet = statement.executeQuery(sql);
+            System.out.println("No.Serial           IdS");
+
+            while (resultSet.next()) {
+                String noSerial = resultSet.getString("noSerial");
+                int IdS = resultSet.getInt("IdS");
+                System.out.printf("%-20s%s\n", noSerial, IdS);
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
