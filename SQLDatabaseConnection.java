@@ -127,6 +127,8 @@ class UiMibd {
         } else if (pilihan == 3) {
             printPendaftaran();
         } else if (pilihan == 4) {
+            deleteEntitas();
+        } else if (pilihan == 5) {
             printLogDownload();
         }
     }
@@ -157,21 +159,22 @@ class UiMibd {
             System.out.print("Pilihan(masukkan ID): ");
             String idInput = sc.next();
             System.out.println();
-            while (true) {
-                try {
-                    String sql = "SELECT * FROM Sarusun WHERE deleted = 0 AND IdS=" + idInput;
-                    ResultSet resultSet = statement.executeQuery(sql);
-                    if (resultSet.next() == false) {
-                        System.out.println("Tidak ada sarusun dengan Id itu atau sarusun dengan Id itu sudah didelete");
-                        System.out.print("Masukkan Id Sarusun yang lainnya:");
-                        idInput = sc.next();
-                    } else
-                        break;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
             if (idInput.equals(".") == false) {
+                while (true) {
+                    try {
+                        String sql = "SELECT * FROM Sarusun WHERE deleted = 0 AND IdS=" + idInput;
+                        ResultSet resultSet = statement.executeQuery(sql);
+                        if (resultSet.next() == false) {
+                            System.out.println(
+                                    "Tidak ada sarusun dengan Id itu atau sarusun dengan Id itu sudah didelete");
+                            System.out.print("Masukkan Id Sarusun yang lainnya:");
+                            idInput = sc.next();
+                        } else
+                            break;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
                 ResultSet resultSet = null;
                 try {
                     // laporan hari ini
@@ -264,21 +267,22 @@ class UiMibd {
             System.out.print("Pilihan(masukkan ID): ");
             String idInput = sc.next();
             System.out.println();
-            while (true) {
-                try {
-                    String sql = "SELECT * FROM Sarusun WHERE deleted = 0 AND IdS=" + idInput;
-                    ResultSet resultSet = statement.executeQuery(sql);
-                    if (resultSet.next() == false) {
-                        System.out.println("Tidak ada sarusun dengan Id itu atau sarusun dengan Id itu sudah didelete");
-                        System.out.print("Masukkan Id Sarusun yang lainnya:");
-                        idInput = sc.next();
-                    } else
-                        break;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
             if (idInput.equals(".") == false) {
+                while (true) {
+                    try {
+                        String sql = "SELECT * FROM Sarusun WHERE deleted = 0 AND IdS=" + idInput;
+                        ResultSet resultSet = statement.executeQuery(sql);
+                        if (resultSet.next() == false) {
+                            System.out.println(
+                                    "Tidak ada sarusun dengan Id itu atau sarusun dengan Id itu sudah didelete");
+                            System.out.print("Masukkan Id Sarusun yang lainnya:");
+                            idInput = sc.next();
+                        } else
+                            break;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
                 ResultSet resultSet = null;
                 try {
                     // laporan hari ini
@@ -347,6 +351,10 @@ class UiMibd {
             System.out.print("Pilihan (masukkan ID Sarusun): ");
             String idInput = sc.next();
             while (true) {
+                if (idInput.equals(".")) {
+                    printHomePageAdmin();
+                    return;
+                }
                 try {
                     String sql = "SELECT * FROM Sarusun WHERE deleted = 0 AND IdS=" + idInput;
                     ResultSet resultSet = statement.executeQuery(sql);
@@ -359,10 +367,6 @@ class UiMibd {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }
-            if (idInput.equals(".")) {
-                printHomePageAdmin();
-                return;
             }
             System.out.println();
 
@@ -440,7 +444,7 @@ class UiMibd {
             System.out.print("Pilihan (masukkan ID Sarusun): ");
             String idInput = sc.next();
             if (idInput.equals(".")) {
-                printHomePageAdmin();
+                printHomePageUser();
                 return;
             }
             while (true) {
@@ -550,7 +554,7 @@ class UiMibd {
                 }
             }
             String input = "'" + noSerialInput + "', " + 0 + ", " + IdS;
-            String sql = "INSERT INTO Perangkat VALUES (" + input + ")";
+            String sql = "INSERT INTO Perangkat(noSerial, statusAir, IdS) VALUES (" + input + ")";
             try {
                 statement.executeUpdate(sql);
                 System.out.println();
@@ -575,7 +579,11 @@ class UiMibd {
             System.out.println("Ketik '.' untuk kembali ke homepage");
             System.out.print("Pilihan(masukkan angka): ");
             String input = sc.next();
+            // biar daftar tower bisa pake spasi di nama tower
+            sc.nextLine();
             System.out.println();
+            if (input.equals("."))
+                break;
             if (input.equals("1")) {
                 System.out.println("Ketik '.' untuk memilih entitas lainnya");
                 System.out.println("Masukkan data user");
@@ -583,6 +591,34 @@ class UiMibd {
                 String nikInput = sc.next();
                 if (nikInput.equals("."))
                     continue;
+                while (true) {
+                    try {
+                        String sql = "SELECT * FROM [User] WHERE NIK= '" + nikInput+"'";
+                        ResultSet resultSet = statement.executeQuery(sql);
+                        if (resultSet.next()) {
+                            int deleted = resultSet.getInt("deleted");
+                            if (deleted == 0) {
+                                System.out.println(
+                                        "Sudah ada record dengan NIK itu");
+                                System.out.print("Masukkan NIK yang lainnya:");
+                                nikInput = sc.next();
+                            }
+                            else if(deleted == 1){
+                                System.out.println("Sudah ada record deleted dengan NIK itu, record akan diaktivasi lagi");
+                                sql = "UPDATE [User] SET deleted = 0 WHERE NIK = '"+nikInput+"'";
+                                statement.executeUpdate(sql);
+                                System.out.println("Record berhasil diaktivasi");
+                                System.out.println("Ketik apapun untuk kembali ke homepage");
+                                sc.next();
+                                printHomePageAdmin();
+                                return;
+                            }
+                        } else
+                            break;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
                 System.out.print("Nama: ");
                 String namaInput = sc.next();
                 System.out.print("alamatDomisili: ");
@@ -643,9 +679,8 @@ class UiMibd {
                 }
                 System.out.println();
                 try {
-                    String sql = "INSERT INTO Sarusun (Lantai, penggunaanAirH, penggunaanAirB, penggunaanAirT, nikPemilik, IdT) VALUES ('"
-                            + lantaiInput + "', '" + 0 + "', '" + 0 + 0 + "', '" + pemilikInput
-                            + "', '" + towerInput + "')";
+                    String sql = "INSERT INTO Sarusun (Lantai, nikPemilik, IdT) VALUES ('" + lantaiInput + "', '"
+                            + pemilikInput + "', " + towerInput + ")";
                     statement.executeUpdate(sql);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -656,7 +691,7 @@ class UiMibd {
                 System.out.println("Ketik '.' untuk memilih entitas lainnya");
                 System.out.println("Masukkan data tower");
                 System.out.print("Nama Tower: ");
-                String namaTowerInput = sc.next();
+                String namaTowerInput = sc.nextLine();
                 if (namaTowerInput.equals("."))
                     continue;
                 displayUser();
@@ -682,22 +717,48 @@ class UiMibd {
                     String sql = "INSERT INTO Tower (nama) VALUES ('"
                             + namaTowerInput + "')";
                     statement.executeUpdate(sql);
-                    sql = "INSERT INTO Pengelola VALUES((SELECT MAX(IdT) FROM Tower), '" + pengelolaInput + "'')";
+                    sql = "INSERT INTO Pengelola VALUES((SELECT MAX(IdT) FROM Tower), '" + pengelolaInput + "')";
                     statement.executeUpdate(sql);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 System.out.println("Tower telah didaftar");
             } else if (input.equals("4")) {
-                displayTower();
                 System.out.println("Ketik '.' untuk memilih entitas lainnya");
                 System.out.println("Masukkan data perangkat");
                 System.out.print("Nomor Serial : ");
-                String towerInput = sc.next();
-                System.out.println();
-                if (towerInput.equals("."))
+                String noSerial = sc.next();
+                if (noSerial.equals("."))
                     continue;
-                displaySarusun(NIK);
+                while (true) {
+                    try {
+                        String sql = "SELECT * FROM Perangkat WHERE noSerial= '" + noSerial+"'";
+                        ResultSet resultSet = statement.executeQuery(sql);
+                        if (resultSet.next()) {
+                            int deleted = resultSet.getInt("deleted");
+                            if (deleted == 0) {
+                                System.out.println("Sudah ada record dengan Nomor Serial itu");
+                                System.out.print("Masukkan Nomor Serial yang lainnya:");
+                                noSerial = sc.next();
+                            }
+                            else if(deleted == 1){
+                                System.out.println("Sudah ada record deleted dengan Nomor Serial itu, record akan diaktivasi lagi");
+                                sql = "UPDATE Perangkat SET deleted = 0 WHERE NIK = '"+noSerial+"'";
+                                statement.executeUpdate(sql);
+                                System.out.println("Record berhasil diaktivasi");
+                                System.out.println("Ketik apapun untuk kembali ke homepage");
+                                sc.next();
+                                printHomePageAdmin();
+                                return;
+                            }
+                        } else
+                            break;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                System.out.println();
+                displayAllSarusun();
                 System.out.print("Id Sarusun lokasi perangkat: ");
                 String sarusunInput = sc.next();
                 while (true) {
@@ -717,9 +778,9 @@ class UiMibd {
                 }
                 System.out.println();
                 try {
-                    String sql = "INSERT INTO Perangkat (noSerial, IdS) VALUES ('" + towerInput
+                    String sql = "INSERT INTO Perangkat (noSerial, IdS) VALUES ('" + noSerial
                             + "', '" + sarusunInput + "')";
-                    ResultSet resultSet = statement.executeQuery(sql);
+                    statement.executeUpdate(sql);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -729,6 +790,7 @@ class UiMibd {
             sc.next();
             printHomePageAdmin();
         }
+        printHomePageAdmin();
     }
 
     public void deleteEntitas() {
@@ -799,7 +861,7 @@ class UiMibd {
                     continue;
                 try {
                     String sql = "UPDATE Perangkat SET deleted = 1 WHERE noSerial = '" + inputNoSerial + "'";
-                    ResultSet resultSet = statement.executeQuery(sql);
+                    statement.executeUpdate(sql);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -845,10 +907,7 @@ class UiMibd {
     public void displayAllSarusun() {
         ResultSet resultSet = null;
         try {
-            String sql = "SELECT IdS, nama, Sarusun.Lantai FROM Sarusun JOIN Tower ON Sarusun.IdT = Tower.IdT"
-                    + " LEFT JOIN (SELECT IdT FROM Pengelola WHERE nikPengelola = '" + NIK
-                    + "') AS Kelola ON Kelola.IdT = Sarusun.IdT"
-                    + " WHERE deleted = 0";
+            String sql = "SELECT IdS, nama, Sarusun.Lantai FROM Sarusun JOIN Tower ON Sarusun.IdT = Tower.IdT WHERE Sarusun.deleted = 0";
             resultSet = statement.executeQuery(sql);
         } catch (Exception e) {
             e.printStackTrace();
