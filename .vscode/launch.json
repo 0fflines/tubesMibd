@@ -2,18 +2,23 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type":       "java",
-      "name":       "Run SQLDatabaseConnection",
-      "request":    "launch",
-      "mainClass":  "SQLDatabaseConnection",
+      "type": "java",
+      "name": "test",
+      "request": "launch",
+      "mainClass": "test",
+      "projectName": "tubesMIBD_b1c1f3bc"
+    },
+    {
+      "type": "java",
+      "name": "Run SQLDatabaseConnection",
+      "request": "launch",
+      "mainClass": "SQLDatabaseConnection",
       "classPaths": [
         "${workspaceFolder}",
         "${workspaceFolder}/mssql-jdbc-12.10.0.jre11.jar"
       ],
-      "vmArgs":     "-Djava.library.path=${workspaceFolder}",
-
-      // ← add this line:
-      "jdkPath":   "C:\\Program Files\\Java\\jdk-21.0.7\\bin\\java.exe"
+      "vmArgs": "-Djava.library.path=${workspaceFolder}",
+      "jdkPath": "C:\\Program Files\\Java\\jdk-21.0.7\\bin\\java.exe"
     }
   ]
 }

@@ -1,8 +1,6 @@
 import java.sql.Statement;
 import java.util.Scanner;
 
-import javax.naming.spi.DirStateFactory.Result;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -158,26 +156,61 @@ class UiMibd {
         System.out.print("Pilihan(masukkan ID): ");
         String idInput = sc.next();
         System.out.println();
-
         if (idInput.equals(".") == false) {
             ResultSet resultSet = null;
             try {
-                String sql = "SELECT PenggunaanAirH, PenggunaanAirB, PenggunaanAirT FROM Sarusun WHERE IdS =" + idInput;
+                // laporan hari ini
+                String tanggal = java.time.LocalDate.now()
+                        .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+                String sql = "SELECT SUM(literAir) FROM PemakaianAir WHERE tanggal = '" + tanggal + "'AND IdS ="
+                        + idInput;
                 resultSet = statement.executeQuery(sql);
                 while (resultSet.next()) {
                     System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 hari terakhir%n",
                             resultSet.getInt(1));
+                }
+
+                // laporan dari hari ini sampai 1 minggu sebelumnya
+                String tanggalSebelum = java.time.LocalDate.now().minusWeeks(1)
+                        .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+                sql = "SELECT SUM(literAir) FROM PemakaianAir WHERE tanggal <= '" + tanggal
+                        + "' AND IdS =" + idInput + " AND tanggal >= '" + tanggalSebelum + "'";
+                resultSet = statement.executeQuery(sql);
+
+                while (resultSet.next()) {
                     System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 minggu terakhir%n",
-                            resultSet.getInt(2));
-                    System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 tahun terakhir%n",
-                            resultSet.getInt(3));
-                    System.out.println("Ketik apapun untuk kembali");
-                    sc.next();
-                    printHomePageAdmin();
+                            resultSet.getInt(1));
+                }
+
+                // laporan dari hari ini sampai 1 bulan sebelumnya
+                tanggalSebelum = java.time.LocalDate.now().minusMonths(1)
+                        .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+                sql = "SELECT SUM(literAir) FROM PemakaianAir WHERE tanggal <= '" + tanggal
+                        + "' AND IdS =" + idInput + " AND tanggal >= '" + tanggalSebelum + "'";
+                resultSet = statement.executeQuery(sql);
+
+                while (resultSet.next()) {
+                    System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 Bulan terakhir%n",
+                            resultSet.getInt(1));
+                }
+
+                // laporan dari hari ini sampai 1 tahun sebelumnya
+                tanggalSebelum = java.time.LocalDate.now().minusYears(1)
+                        .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+                sql = "SELECT SUM(literAir) FROM PemakaianAir WHERE tanggal <= '" + tanggal
+                        + "' AND IdS =" + idInput + " AND tanggal >= '" + tanggalSebelum + "'";
+                resultSet = statement.executeQuery(sql);
+
+                while (resultSet.next()) {
+                    System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 Tahun terakhir%n",
+                            resultSet.getInt(1));
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            System.out.println("Ketik apapun untuk kembali");
+            sc.next();
+            printHomePageAdmin();
         } else
             printHomePageAdmin();
     }
@@ -213,26 +246,61 @@ class UiMibd {
         System.out.print("Pilihan(masukkan ID): ");
         String idInput = sc.next();
         System.out.println();
-
         if (idInput.equals(".") == false) {
             ResultSet resultSet = null;
             try {
-                String sql = "SELECT PenggunaanAirH, PenggunaanAirB, PenggunaanAirT FROM Sarusun WHERE IdS =" + idInput;
+                // laporan hari ini
+                String tanggal = java.time.LocalDate.now()
+                        .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+                String sql = "SELECT SUM(literAir) FROM PemakaianAir WHERE tanggal = '" + tanggal + "'AND IdS ="
+                        + idInput;
                 resultSet = statement.executeQuery(sql);
                 while (resultSet.next()) {
                     System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 hari terakhir%n",
                             resultSet.getInt(1));
+                }
+
+                // laporan dari hari ini sampai 1 minggu sebelumnya
+                String tanggalSebelum = java.time.LocalDate.now().minusWeeks(1)
+                        .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+                sql = "SELECT SUM(literAir) FROM PemakaianAir WHERE tanggal <= '" + tanggal
+                        + "' AND IdS =" + idInput + " AND tanggal >= '" + tanggalSebelum + "'";
+                resultSet = statement.executeQuery(sql);
+
+                while (resultSet.next()) {
                     System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 minggu terakhir%n",
-                            resultSet.getInt(2));
-                    System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 tahun terakhir%n",
-                            resultSet.getInt(3));
-                    System.out.println("Ketik apapun untuk kembali");
-                    sc.next();
-                    printHomePageUser();
+                            resultSet.getInt(1));
+                }
+
+                // laporan dari hari ini sampai 1 bulan sebelumnya
+                tanggalSebelum = java.time.LocalDate.now().minusMonths(1)
+                        .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+                sql = "SELECT SUM(literAir) FROM PemakaianAir WHERE tanggal <= '" + tanggal
+                        + "' AND IdS =" + idInput + " AND tanggal >= '" + tanggalSebelum + "'";
+                resultSet = statement.executeQuery(sql);
+
+                while (resultSet.next()) {
+                    System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 Bulan terakhir%n",
+                            resultSet.getInt(1));
+                }
+
+                // laporan dari hari ini sampai 1 tahun sebelumnya
+                tanggalSebelum = java.time.LocalDate.now().minusYears(1)
+                        .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+                sql = "SELECT SUM(literAir) FROM PemakaianAir WHERE tanggal <= '" + tanggal
+                        + "' AND IdS =" + idInput + " AND tanggal >= '" + tanggalSebelum + "'";
+                resultSet = statement.executeQuery(sql);
+
+                while (resultSet.next()) {
+                    System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 Tahun terakhir%n",
+                            resultSet.getInt(1));
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            System.out.println("Ketik apapun untuk kembali");
+            sc.next();
+            printHomePageUser();
         } else
             printHomePageUser();
     }

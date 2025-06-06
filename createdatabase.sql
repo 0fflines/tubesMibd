@@ -34,11 +34,16 @@ CREATE TABLE Sarusun
 (
 	IdS INT IDENTITY(1,1) PRIMARY KEY,
 	Lantai VARCHAR(30),
-	penggunaanAirH INT,
-	penggunaanAirB INT,
-	penggunaanAirT INT,
 	nikPemilik CHAR(16) FOREIGN KEY REFERENCES [User] (NIK),
 	IdT INT FOREIGN KEY REFERENCES Tower (IdT)
+)
+
+CREATE TABLE PemakaianAir
+(
+	IdAir INT IDENTITY(1,1) PRIMARY KEY,
+	IdS INT FOREIGN KEY REFERENCES Sarusun(IdS),
+	tanggal DATE,
+	literAir INT
 )
 
 CREATE TABLE Perangkat
@@ -127,3 +132,20 @@ INSERT INTO logMonitorAir (IdL, NIK, IdS, waktu) VALUES
 INSERT INTO aktivasiPerangkat (IdL, NIK, IdS, waktu) VALUES
 (2, '5234567890123456', 3, GETDATE()),
 (3, '1234567890123456', 1, DATEADD(HOUR, -2, GETDATE()));
+
+
+--fungsi buat ngisi entry PemakaianAir buat semua sarusun(1,2,3,4,5) dari 13/06/2024 sampai 13/06/2025
+DECLARE @d DATE = '2024-06-13';
+
+WHILE @d <= '2025-06-13'
+BEGIN
+    -- Insert for each house (IdS = 1..5)
+    INSERT INTO PemakaianAir (IdS, tanggal, literAir) VALUES (1, @d, CAST(RAND() * 500 + 100 AS INT));
+    INSERT INTO PemakaianAir (IdS, tanggal, literAir) VALUES (2, @d, CAST(RAND() * 500 + 100 AS INT));
+    INSERT INTO PemakaianAir (IdS, tanggal, literAir) VALUES (3, @d, CAST(RAND() * 500 + 100 AS INT));
+    INSERT INTO PemakaianAir (IdS, tanggal, literAir) VALUES (4, @d, CAST(RAND() * 500 + 100 AS INT));
+    INSERT INTO PemakaianAir (IdS, tanggal, literAir) VALUES (5, @d, CAST(RAND() * 500 + 100 AS INT));
+
+    -- Advance to next day
+    SET @d = DATEADD(DAY, 1, @d);
+END;
