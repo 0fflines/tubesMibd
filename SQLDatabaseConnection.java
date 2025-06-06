@@ -238,25 +238,91 @@ class UiMibd {
     public void printLogDownload() {
         printAsciiBox(logo);
         System.out.println("Ketik '.' jika ingin kembali ke homepage");
-        System.out.println(
-                "Masukkan NIK untuk melihat log user tersebut atau # untuk melihat log semua user");
+        System.out.println("Masukkan NIK untuk melihat log user tersebut atau '#' untuk semua user");
         System.out.print("NIK: ");
         String nikInput = sc.next();
-        if (nikInput.equals(".") == true) {
+        if (nikInput.equals(".")) { // kembali ke homepage
             printHomePageUser();
+            return;
         }
+
         System.out.println();
         System.out.println("Masukkan range tanggal log yang ingin didownload");
-        System.out.println("Masukkan dengan format YYYYMMDD (20030130, 20011230)");
-        System.out.print("Awal: ");
+        System.out.println("Masukkan dengan format YYYYMMDD (misal: 20240613)");
+        System.out.print("Awal  : ");
         String awal = sc.next();
-        System.out.print("Akhir: ");
+        System.out.print("Akhir : ");
         String akhir = sc.next();
         System.out.println();
-        System.out.println("Log sudah didownload sebagai file txt pada path .../Downloads");
+
+        // Tentukan path file di folder Downloads
+        String fileName = "logDownload_" + System.currentTimeMillis() + ".txt";
+        String userHome = System.getProperty("user.home");
+        // Windows: biasanya userHome + "\\Downloads\\".
+        // Jika di Linux/Mac, ubah separator-nya sesuai OS.
+        // Ini cara umum yang bekerja di Windows:
+        String filePath = userHome + "\\Downloads\\" + fileName;
+
+        try (java.io.BufferedWriter bw = new java.io.BufferedWriter(new java.io.FileWriter(filePath))) {
+            // Header untuk aktivasiPerangkat
+            bw.write("=== LOG AKTIVASI PERANGKAT ===");
+            bw.newLine();
+
+            // Bentuk query untuk aktivasiPerangkat
+            String sqlAktiv = "SELECT IdL, NIK, IdS, waktu " +
+                    "FROM aktivasiPerangkat " +
+                    "WHERE waktu BETWEEN '" + awal + "' AND '" + akhir + "'";
+            if (!nikInput.equals("#")) {
+                sqlAktiv += " AND NIK = '" + nikInput + "'";
+            }
+            ResultSet rsAktiv = statement.executeQuery(sqlAktiv);
+            while (rsAktiv.next()) {
+                int idL = rsAktiv.getInt("IdL");
+                String nik = rsAktiv.getString("NIK");
+                int idS = rsAktiv.getInt("IdS");
+                java.sql.Timestamp waktu = rsAktiv.getTimestamp("waktu");
+                bw.write(String.format("IdL: %d, NIK: %s, IdS: %d, Waktu: %s", idL, nik, idS, waktu.toString()));
+                bw.newLine();
+            }
+            rsAktiv.close();
+
+            bw.newLine();
+            // Header untuk logMonitorAir
+            bw.write("=== LOG MONITOR AIR ===");
+            bw.newLine();
+
+            // Bentuk query untuk logMonitorAir
+            String sqlMon = "SELECT IdL, NIK, IdS, waktu " +
+                    "FROM logMonitorAir " +
+                    "WHERE waktu BETWEEN '" + awal + "' AND '" + akhir + "'";
+            if (!nikInput.equals("#")) {
+                sqlMon += " AND NIK = '" + nikInput + "'";
+            }
+            ResultSet rsMonitor = statement.executeQuery(sqlMon);
+            while (rsMonitor.next()) {
+                int idL = rsMonitor.getInt("IdL");
+                String nik = rsMonitor.getString("NIK");
+                int idS = rsMonitor.getInt("IdS");
+                java.sql.Timestamp waktu = rsMonitor.getTimestamp("waktu");
+                bw.write(String.format("IdL: %d, NIK: %s, IdS: %d, Waktu: %s", idL, nik, idS, waktu.toString()));
+                bw.newLine();
+            }
+            rsMonitor.close();
+
+        } catch (java.io.IOException | SQLException e) {
+            e.printStackTrace();
+            System.out.println("Gagal menulis log ke file.");
+            System.out.println("Ketik apapun untuk kembali");
+            sc.next();
+            printHomePageUser();
+            return;
+        }
+
+        System.out.println("Log sudah didownload sebagai file txt pada path:");
+        System.out.println(filePath);
         System.out.println("Ketik apapun untuk kembali");
         sc.next();
-        printHomePageAdmin();
+        printHomePageUser();
     }
 
     public void printLaporanAirUser() {
@@ -593,11 +659,11 @@ class UiMibd {
                     continue;
                 while (true) {
                     try {
-                        if (nikInput.equals(".")){
+                        if (nikInput.equals(".")) {
                             printHomePageAdmin();
                             return;
                         }
-                        String sql = "SELECT * FROM [User] WHERE NIK= '" + nikInput+"'";
+                        String sql = "SELECT * FROM [User] WHERE NIK= '" + nikInput + "'";
                         ResultSet resultSet = statement.executeQuery(sql);
                         if (resultSet.next()) {
                             int deleted = resultSet.getInt("deleted");
@@ -606,10 +672,10 @@ class UiMibd {
                                         "Sudah ada record dengan NIK itu");
                                 System.out.print("Masukkan NIK yang lainnya:");
                                 nikInput = sc.next();
-                            }
-                            else if(deleted == 1){
-                                System.out.println("Sudah ada record deleted dengan NIK itu, record akan diaktivasi lagi");
-                                sql = "UPDATE [User] SET deleted = 0 WHERE NIK = '"+nikInput+"'";
+                            } else if (deleted == 1) {
+                                System.out.println(
+                                        "Sudah ada record deleted dengan NIK itu, record akan diaktivasi lagi");
+                                sql = "UPDATE [User] SET deleted = 0 WHERE NIK = '" + nikInput + "'";
                                 statement.executeUpdate(sql);
                                 System.out.println("Record berhasil diaktivasi");
                                 System.out.println("Ketik apapun untuk kembali ke homepage");
@@ -649,7 +715,7 @@ class UiMibd {
                     continue;
                 while (true) {
                     try {
-                        if (towerInput.equals(".")){
+                        if (towerInput.equals(".")) {
                             printHomePageAdmin();
                             return;
                         }
@@ -740,11 +806,11 @@ class UiMibd {
                     continue;
                 while (true) {
                     try {
-                        if (noSerial.equals(".")){
+                        if (noSerial.equals(".")) {
                             printHomePageAdmin();
                             return;
                         }
-                        String sql = "SELECT * FROM Perangkat WHERE noSerial= '" + noSerial+"'";
+                        String sql = "SELECT * FROM Perangkat WHERE noSerial= '" + noSerial + "'";
                         ResultSet resultSet = statement.executeQuery(sql);
                         if (resultSet.next()) {
                             int deleted = resultSet.getInt("deleted");
@@ -752,10 +818,10 @@ class UiMibd {
                                 System.out.println("Sudah ada record dengan Nomor Serial itu");
                                 System.out.print("Masukkan Nomor Serial yang lainnya:");
                                 noSerial = sc.next();
-                            }
-                            else if(deleted == 1){
-                                System.out.println("Sudah ada record deleted dengan Nomor Serial itu, record akan diaktivasi lagi");
-                                sql = "UPDATE Perangkat SET deleted = 0 WHERE noSerial = '"+noSerial+"'";
+                            } else if (deleted == 1) {
+                                System.out.println(
+                                        "Sudah ada record deleted dengan Nomor Serial itu, record akan diaktivasi lagi");
+                                sql = "UPDATE Perangkat SET deleted = 0 WHERE noSerial = '" + noSerial + "'";
                                 statement.executeUpdate(sql);
                                 System.out.println("Record berhasil diaktivasi");
                                 System.out.println("Ketik apapun untuk kembali ke homepage");
