@@ -593,6 +593,10 @@ class UiMibd {
                     continue;
                 while (true) {
                     try {
+                        if (nikInput.equals(".")){
+                            printHomePageAdmin();
+                            return;
+                        }
                         String sql = "SELECT * FROM [User] WHERE NIK= '" + nikInput+"'";
                         ResultSet resultSet = statement.executeQuery(sql);
                         if (resultSet.next()) {
@@ -645,6 +649,10 @@ class UiMibd {
                     continue;
                 while (true) {
                     try {
+                        if (towerInput.equals(".")){
+                            printHomePageAdmin();
+                            return;
+                        }
                         String sql = "SELECT * FROM Tower WHERE deleted = 0 AND IdT=" + towerInput;
                         ResultSet resultSet = statement.executeQuery(sql);
                         if (resultSet.next() == false) {
@@ -732,6 +740,10 @@ class UiMibd {
                     continue;
                 while (true) {
                     try {
+                        if (noSerial.equals(".")){
+                            printHomePageAdmin();
+                            return;
+                        }
                         String sql = "SELECT * FROM Perangkat WHERE noSerial= '" + noSerial+"'";
                         ResultSet resultSet = statement.executeQuery(sql);
                         if (resultSet.next()) {
@@ -743,7 +755,7 @@ class UiMibd {
                             }
                             else if(deleted == 1){
                                 System.out.println("Sudah ada record deleted dengan Nomor Serial itu, record akan diaktivasi lagi");
-                                sql = "UPDATE Perangkat SET deleted = 0 WHERE NIK = '"+noSerial+"'";
+                                sql = "UPDATE Perangkat SET deleted = 0 WHERE noSerial = '"+noSerial+"'";
                                 statement.executeUpdate(sql);
                                 System.out.println("Record berhasil diaktivasi");
                                 System.out.println("Ketik apapun untuk kembali ke homepage");
