@@ -881,7 +881,6 @@ class UiMibd {
                         String sql = "SELECT * FROM Tower WHERE deleted = 0 AND IdT=" + idTower;
                         ResultSet resultSet = statement.executeQuery(sql);
                         if (resultSet.next() == false) {
-                            int deleted = resultSet.getInt("deleted");
                             System.out.println("Tower dengan id itu tidak ditemukan");
                             System.out.print("Masukkan Id Tower yang lainnya: ");
                             idTower = sc.next();
@@ -897,19 +896,28 @@ class UiMibd {
                 String nik = sc.next();
                 while (true) {
                     try {
-                        if(nik.equals(".")){
+                        if (nik.equals(".")) {
                             printHomePageAdmin();
                             return;
                         }
-                        String sql = "SELECT * FROM Pengelola WHERE nikPengelola='" + nik +"' AND IdT = "+idTower;
-                        ResultSet resultSet = statement.executeQuery(sql);
-                        if (resultSet.next()) {
-                            System.out.println("NIK tersebut sudah menjadi pengelola untuk Tower itu");
+                        String sql = "SELECT * FROM [User] WHERE deleted = 0 AND NIK = '" + nik + "'";
+                        ResultSet rsNIK = statement.executeQuery(sql);
+                        if (rsNIK.next()) {
+                            sql = "SELECT * FROM Pengelola WHERE nikPengelola='" + nik + "' AND IdT = " + idTower;
+                            ResultSet resultSet = statement.executeQuery(sql);
+                            if (resultSet.next()) {
+                                System.out.println("NIK tersebut sudah menjadi pengelola untuk Tower itu");
+                                System.out.println("Masukkan '.' untuk kembali ke homepage");
+                                System.out.print("Masukkan NIK yang lainnya:");
+                                nik = sc.next();
+                            } else
+                                break;
+                        } else {
+                            System.out.println("User dengan NIK tersebut tidak dapat ditemukan");
                             System.out.println("Masukkan '.' untuk kembali ke homepage");
                             System.out.print("Masukkan NIK yang lainnya:");
                             nik = sc.next();
-                        } else
-                            break;
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
