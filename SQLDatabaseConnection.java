@@ -223,6 +223,15 @@ class UiMibd {
                         System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 Tahun terakhir%n",
                                 resultSet.getInt(1));
                     }
+
+                    sql = "INSERT INTO logPengguna OUTPUT INSERTED.IdL DEFAULT VALUES";
+                    resultSet = statement.executeQuery(sql);
+                    if (resultSet.next()) {
+                        int IdL = resultSet.getInt(1);
+                        String values = IdL + ", '" + NIK + "', " + idInput + ", GETDATE()";
+                        sql = "INSERT INTO logMonitorAir VALUES (" + values + ")";
+                        statement.executeUpdate(sql);
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -397,6 +406,15 @@ class UiMibd {
                         System.out.printf("Sarusun ini menggunakan %d Liter air selama 1 Tahun terakhir%n",
                                 resultSet.getInt(1));
                     }
+
+                    sql = "INSERT INTO logPengguna OUTPUT INSERTED.IdL DEFAULT VALUES";
+                    resultSet = statement.executeQuery(sql);
+                    if (resultSet.next()) {
+                        int IdL = resultSet.getInt(1);
+                        String values = IdL + ", '" + NIK + "', " + idInput + ", GETDATE()";
+                        sql = "INSERT INTO logMonitorAir VALUES (" + values + ")";
+                        statement.executeUpdate(sql);
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -490,6 +508,15 @@ class UiMibd {
                 } else {
                     System.out.println("Perangkat tidak ditemukan.");
                 }
+
+                sql = "INSERT INTO logPengguna OUTPUT INSERTED.IdL DEFAULT VALUES";
+                resultSet = statement.executeQuery(sql);
+                if (resultSet.next()) {
+                    int IdL = resultSet.getInt(1);
+                    String values = IdL + ", '" + NIK + "', " + idInput + ", GETDATE()";
+                    sql = "INSERT INTO aktivasiPerangkat VALUES (" + values + ")";
+                    statement.executeUpdate(sql);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -582,6 +609,14 @@ class UiMibd {
                     System.out.println("Perangkat IoT " + noSerialInput + " sekarang " + statusStr);
                 } else {
                     System.out.println("Perangkat tidak ditemukan.");
+                }
+                sql = "INSERT INTO logPengguna OUTPUT INSERTED.IdL DEFAULT VALUES";
+                resultSet = statement.executeQuery(sql);
+                if (resultSet.next()) {
+                    int IdL = resultSet.getInt(1);
+                    String values = IdL + ", '" + NIK + "', " + idInput + ", GETDATE()";
+                    sql = "INSERT INTO aktivasiPerangkat VALUES (" + values + ")";
+                    statement.executeUpdate(sql);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
