@@ -641,7 +641,8 @@ class UiMibd {
             System.out.println("1) User");
             System.out.println("2) Sarusun");
             System.out.println("3) Tower");
-            System.out.println("4) Perangkat\n");
+            System.out.println("4) Perangkat");
+            System.out.println("5) Pengelola\n");
             System.out.println("Ketik '.' untuk kembali ke homepage");
             System.out.print("Pilihan(masukkan angka): ");
             String input = sc.next();
@@ -863,6 +864,65 @@ class UiMibd {
                     e.printStackTrace();
                 }
                 System.out.println("Perangkat telah didaftar");
+            } else if (input.equals("5")) {
+                System.out.println("Ketik '.' untuk memilih entitas lainnya");
+                System.out.println("Masukkan data pengelola");
+                displayTower();
+                System.out.print("Id Tower: ");
+                String idTower = sc.next();
+                if (idTower.equals("."))
+                    continue;
+                while (true) {
+                    try {
+                        if (idTower.equals(".")) {
+                            printHomePageAdmin();
+                            return;
+                        }
+                        String sql = "SELECT * FROM Tower WHERE deleted = 0 AND IdT=" + idTower;
+                        ResultSet resultSet = statement.executeQuery(sql);
+                        if (resultSet.next() == false) {
+                            int deleted = resultSet.getInt("deleted");
+                            System.out.println("Tower dengan id itu tidak ditemukan");
+                            System.out.print("Masukkan Id Tower yang lainnya: ");
+                            idTower = sc.next();
+                        } else
+                            break;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                System.out.println();
+                displayUser();
+                System.out.print("NIK Pengelola: ");
+                String nik = sc.next();
+                while (true) {
+                    try {
+                        if(nik.equals(".")){
+                            printHomePageAdmin();
+                            return;
+                        }
+                        String sql = "SELECT * FROM Pengelola WHERE nikPengelola='" + nik +"' AND IdT = "+idTower;
+                        ResultSet resultSet = statement.executeQuery(sql);
+                        if (resultSet.next()) {
+                            System.out.println("NIK tersebut sudah menjadi pengelola untuk Tower itu");
+                            System.out.println("Masukkan '.' untuk kembali ke homepage");
+                            System.out.print("Masukkan NIK yang lainnya:");
+                            nik = sc.next();
+                        } else
+                            break;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                System.out.println();
+                try {
+                    String sql = "INSERT INTO Pengelola (IdT, nikPengelola) VALUES ('" + idTower
+                            + "', '" + nik + "')";
+                    statement.executeUpdate(sql);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                System.out.println("Pengelola telah didaftar");
             }
             System.out.println("Ketik apapun untuk kembali kepada homepage");
             sc.next();
