@@ -133,7 +133,8 @@ INSERT INTO Perangkat (noSerial, statusAir, IdS) VALUES
 ('DEV0000000000002', 0, 2),
 ('DEV0000000000003', 1, 3),
 ('DEV0000000000004', 0, 4),
-('DEV0000000000005', 1, 5);
+('DEV0000000000005', 1, 5),
+('AAA0000000000001', 0, 6);
 
 -- Insert Pengelola
 INSERT INTO Pengelola (IdT, nikPengelola) VALUES
