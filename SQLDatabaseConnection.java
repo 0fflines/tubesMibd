@@ -331,7 +331,7 @@ class UiMibd {
         System.out.println(filePath);
         System.out.println("Ketik apapun untuk kembali");
         sc.next();
-        printHomePageUser();
+        printHomePageAdmin();
     }
 
     public void printLaporanAirUser() {
