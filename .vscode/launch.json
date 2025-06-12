@@ -3,9 +3,9 @@
   "configurations": [
     {
       "type": "java",
-      "name": "test",
+      "name": "SQLDatabaseConnection",
       "request": "launch",
-      "mainClass": "test",
+      "mainClass": "SQLDatabaseConnection",
       "projectName": "tubesMIBD_b1c1f3bc"
     },
     {
