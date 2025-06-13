@@ -323,7 +323,7 @@ class UiMibd {
             System.out.println("Gagal menulis log ke file.");
             System.out.println("Ketik apapun untuk kembali");
             sc.next();
-            printHomePageUser();
+            printHomePageAdmin();
             return;
         }
 
